@@ -14,5 +14,5 @@ rules = association_rules(frequent_item_sets, metric='lift', min_threshold=0.1)
 rules = rules[(rules['consequent support'] >=0.5)]
 rules.sort_values(by = 'lift',ascending=False,inplace=True)
 # print(rules)
-rules.to_csv('fpgrowth_rule.csv', sep='\t', index=False)
+rules.to_csv('result/fpgrowth_rule.csv', sep='\t', index=False)
 
