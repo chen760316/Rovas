@@ -47,14 +47,11 @@ X_test = X_test.values
 # clf = SLAD(epochs=2, device=device)
 # clf.fit(X_train)
 """ICL"""
-# clf = ICL(epochs=1, device=device, n_ensemble='auto')
-# clf.fit(X_train)
-"""RDP?"""
-# clf = RDP(hidden_dims=100, device=device)
-# clf.fit(X_train)
-"""NeuTraL"""
-clf = NeuTraL(epochs=1, device=device)
+clf = ICL(epochs=1, device=device, n_ensemble='auto')
 clf.fit(X_train)
+"""NeuTraL"""
+# clf = NeuTraL(epochs=1, device=device)
+# clf.fit(X_train)
 
 scores = clf.decision_function(X_test)
 pred_labels, confidence = clf.predict(X_test, return_confidence=True)
