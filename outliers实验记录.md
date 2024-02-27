@@ -2329,9 +2329,50 @@ train_score = model.score(X_train, y_train)
 
 ## 6.2 初步结论
 
-### 6.2.1 obesity数据集
+### 6.2.1 balita数据集
 
-![image-20240227095858367](./assets/image-20240227095858367.png)
+有趣的规则(0.01情况下)：
 
-- 包含NeuTraL和SLAD的前项==>Success的confidence为1.0
+- 绝大多数负面
+- 'RCA', 'RePEN', 'GOAD'，'RCA'，'DevNet'对svm分类准确率始终呈现负面影响
+- SLAD和DeepSAD较为有趣，与不同检测器的组合呈现出多种效果
+- ICL与其他配合出现频率低，始终较好
+- PReNet和NeuTraL始终较好
+- DeepSVDD负面效果的情况更多
 
+### 6.2.2 drybean数据集
+
+有趣的规则(0.03情况下)：
+
+- 绝大多数正面
+- SLAD本身正面效果，但与其他检测器的组合降低分类准确率
+- ICL始终负面
+- RePEN、RCA、Quartile、DevNet、RoSAS、RePEN、PReNet始终正面
+- DeepSAD负面占主要
+- DeepSVDD特性不鲜明
+
+### 6.2.3 Apple数据集
+
+有趣的规则(0.01情况下)：
+
+- 绝大多数正面
+- RCA、DevNet、RePEN、DeepSAD始终正面
+- PReNet、ICL主要正面，但二者组合产生负面影响
+- RoSAS和PReNet本身单独正面，但二者组合产生负面影响
+- NeuTraL与其他检测器结合，正负都有
+- 负面情况较少，主要由RoSAS、NeuTraL、DeepSVDD、PReNet组成
+
+### 6.2.4 obesity数据集
+
+有趣的规则(0.03情况下)：
+
+- 正面影响更多一些
+- SLAD、RCA(参与组合少)始终正面
+- RePEN主要正面，小部分负面
+- DeepSVDD组合多，情况平均
+- NeuTraL组合多，正面更多，参与负面也不少
+- ICL参与组合少，正负皆有
+- RoSAS和GOAD本身负面，组合提升效果
+- DeepSAD负面多一些
+- DevNet较为平均
+- PReNet没有与其他的高频组合

@@ -13,7 +13,7 @@ for support in support_list:
     frequent_item_sets.to_csv(freq_file_path, sep='\t', index=False)
     # print(frequent_item_sets)
     rules = association_rules(frequent_item_sets, metric='lift', min_threshold=0.1)
-    rules = rules[(rules['consequent support'] >=0.5)]
+    rules = rules[(rules['consequent support'] >=0.5) & (rules['support'] >= 0.01)]
     rules.sort_values(by = 'lift',ascending=False,inplace=True)
     # print(rules)
     rules.to_csv(rule_file_path, sep='\t', index=False)
