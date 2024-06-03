@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="2f212b74-74cf-4e84-90db-549acbe8a53d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/UCI_datasets/说明.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_models/GMM_custom.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_models/GMM_sklearn.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_models/isolationforest_outlier_detection.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_models/loss_function.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_models/one_element_outlier_detection.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_models/unsupervised_outlier_detection.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/datasets_synthetic/datasets/alarm.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/datasets_synthetic/datasets/win95pts.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/datasets_synthetic/datasets/说明.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/datasets_synthetic/generate_datasets.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feature_selection/aggregate_function.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feature_selection/feature_selection.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kaggle_datasets/说明.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/svm_decision/apple/attr_true_ratio.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/svm_decision/说明.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/说明.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifier/SVM_classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifier/SVM_classifier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifier/deepod_unsupervised_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifier/deepod_unsupervised_demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifier/deepod_unsupervised_kaggle_apple.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifier/deepod_unsupervised_kaggle_apple.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifier/deepod_unsupervised_kaggle_iris.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifier/deepod_unsupervised_kaggle_iris.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifier/deepod_weakly_supervised_apple.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifier/deepod_weakly_supervised_apple.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kaggle_datasets/Iris Species/Iris.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kaggle_datasets/Iris_Species/Iris.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/statistical_methods/outliers_statistical.py" beforeDir="false" afterPath="$PROJECT_DIR$/statistical_methods/outliers_statistical.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/apple_GOAD.py" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/apple_GOAD.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/apple_rule.py" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/apple_rule.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/apple_statistical.py" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/apple_statistical.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/apple_supervised.py" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/apple_supervised.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/apple_unsupervised.py" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/apple_unsupervised.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/apriority.py" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/apriority.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/fpgrowth.py" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/fpgrowth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.001.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.001.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.003.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.003.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.006.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.006.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.010.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.010.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.030.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.030.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.060.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_frequent_0.060.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.001.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.001.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.003.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.003.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.006.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.006.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.010.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.010.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.030.csv" beforeDir="false" afterPath="$PROJECT_DIR$/svm_decision/apple/result/apriority_rule_0.030.csv" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="ProjectId" id="2cr0WN6wbWLvjSfDv8tx1kfoCQS" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\xuhongzuo\csl_xzw_projects\datasets_synthetic\datasets" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.apple_GOAD">
+    <configuration name="aggregate_function" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Rovas" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/feature_selection" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/feature_selection/aggregate_function.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="apple_GOAD" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Rovas" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/svm_decision/apple" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/svm_decision/apple/apple_GOAD.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="feature_selection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Rovas" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/feature_selection" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/feature_selection/feature_selection.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="loss_function" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Rovas" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/custom_models" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/custom_models/loss_function.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="one_element_outlier_detection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Rovas" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/custom_models" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="E:\xuhongzuo\Rovas\custom_models\one_element_outlier_detection.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.apple_GOAD" />
+        <item itemvalue="Python.feature_selection" />
+        <item itemvalue="Python.aggregate_function" />
+        <item itemvalue="Python.one_element_outlier_detection" />
+        <item itemvalue="Python.loss_function" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2f212b74-74cf-4e84-90db-549acbe8a53d" name="Changes" comment="" />
+      <created>1708854420857</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1708854420857</updated>
+      <workItem from="1708854422072" duration="427000" />
+      <workItem from="1710849114623" duration="7006000" />
+      <workItem from="1711610810518" duration="7039000" />
+      <workItem from="1716864961048" duration="27897000" />
+      <workItem from="1717113958673" duration="13718000" />
+      <workItem from="1717421698408" duration="2942000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$loss_function.coverage" NAME="loss_function Coverage Results" MODIFIED="1716969221497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$GMM_sklearn.coverage" NAME="GMM_sklearn Coverage Results" MODIFIED="1717230276113" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/Rovas$one_element.coverage" NAME="one_element Coverage Results" MODIFIED="1717422696789" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$apriority.coverage" NAME="apriority Coverage Results" MODIFIED="1716948822779" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/svm_decision/apple" />
+    <SUITE FILE_PATH="coverage/Rovas$SVM_classifier.coverage" NAME="SVM_classifier Coverage Results" MODIFIED="1717422480647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/classifier" />
+    <SUITE FILE_PATH="coverage/Rovas$deepod_unsupervised_demo.coverage" NAME="deepod_unsupervised_demo Coverage Results" MODIFIED="1717422211216" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/classifier" />
+    <SUITE FILE_PATH="coverage/Rovas$GMM_sklearn.coverage" NAME="GMM_sklearn Coverage Results" MODIFIED="1717422552965" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$feature_selection.coverage" NAME="feature_selection Coverage Results" MODIFIED="1716906755509" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/feature_selection" />
+    <SUITE FILE_PATH="coverage/Rovas$deepod_unsupervised_kaggle_iris.coverage" NAME="deepod_unsupervised_kaggle_iris Coverage Results" MODIFIED="1717422370483" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/classifier" />
+    <SUITE FILE_PATH="coverage/Rovas$deepod_weakly_supervised_demo.coverage" NAME="deepod_weakly_supervised_demo Coverage Results" MODIFIED="1717422488678" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/classifier" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$aggregate_function.coverage" NAME="aggregate_function Coverage Results" MODIFIED="1716945156630" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/feature_selection" />
+    <SUITE FILE_PATH="coverage/Rovas$isolationforest.coverage" NAME="isolationforest Coverage Results" MODIFIED="1717421772882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$attr_true_ratio.coverage" NAME="attr_true_ratio Coverage Results" MODIFIED="1716949552087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/svm_decision/apple" />
+    <SUITE FILE_PATH="coverage/Rovas$feature_selection.coverage" NAME="feature_selection Coverage Results" MODIFIED="1717423505091" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/feature_selection" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$outlier_detection.coverage" NAME="outlier_detection Coverage Results" MODIFIED="1717233328187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/Rovas$aggregate_function.coverage" NAME="aggregate_function Coverage Results" MODIFIED="1717423349687" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/feature_selection" />
+    <SUITE FILE_PATH="coverage/Rovas$apple_GOAD.coverage" NAME="apple_GOAD Coverage Results" MODIFIED="1717423756513" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/svm_decision/apple" />
+    <SUITE FILE_PATH="coverage/Rovas$deepod_weakly_supervised_apple.coverage" NAME="deepod_weakly_supervised_apple Coverage Results" MODIFIED="1717422414078" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/classifier" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$deepod_unsupervised_demo.coverage" NAME="deepod_unsupervised_demo Coverage Results" MODIFIED="1711617626721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/classifier" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$generate_datasets.coverage" NAME="generate_datasets Coverage Results" MODIFIED="1711626584377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/datasets_synthetic" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$apple_rule.coverage" NAME="apple_rule Coverage Results" MODIFIED="1716946227303" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/svm_decision/apple" />
+    <SUITE FILE_PATH="coverage/Rovas$deepod_unsupervised_kaggle_apple.coverage" NAME="deepod_unsupervised_kaggle_apple Coverage Results" MODIFIED="1717422276046" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/classifier" />
+    <SUITE FILE_PATH="coverage/Rovas$loss_function.coverage" NAME="loss_function Coverage Results" MODIFIED="1717422645682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$GMM.coverage" NAME="GMM Coverage Results" MODIFIED="1716866075788" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$one_element.coverage" NAME="one_element Coverage Results" MODIFIED="1717230391955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+    <SUITE FILE_PATH="coverage/csl_xzw_projects$isolationforest.coverage" NAME="isolationforest Coverage Results" MODIFIED="1717233687800" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/custom_models" />
+  </component>
+</project>
