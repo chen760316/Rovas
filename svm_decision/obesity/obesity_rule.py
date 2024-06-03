@@ -22,6 +22,7 @@ epochs = 1
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 n_trans = 64
 random_state = 42
+np.random.seed(42)
 """
 kaggle datasets
 """
@@ -32,10 +33,10 @@ obesity['ObesityCategory'] = enc.fit_transform(obesity['ObesityCategory'])
 obesity['Gender'] = obesity['Gender'].replace({'Male': 1, 'Female': 0})
 X = obesity.values[:,0:6]
 y = obesity.values[:,6]
-X = StandardScaler().fit_transform(X)
+# X = StandardScaler().fit_transform(X)
 indices = np.arange(len(y))
 X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(X, y, indices, test_size=0.5, random_state=1)
-    
+
 """GOAD"""
 clf_1 = GOAD(epochs=epochs, device=device, n_trans=n_trans)
 clf_1.fit(X_train, y=None)

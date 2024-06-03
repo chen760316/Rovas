@@ -9,11 +9,14 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import matplotlib
 from sklearn.decomposition import PCA
+import sys
+
+sys.path.append('E:/xuhongzuo/Rovas/')
 
 """
 kaggle datasets
 """
-file_path = "..\\kaggle datasets\\Apple Quality\\apple_quality.csv"
+file_path = "../kaggle_datasets/Apple_Quality/apple_quality.csv"
 apple_quality = pd.read_csv(file_path)
 apple_quality['Quality'] = apple_quality['Quality'].replace({'good': 1, 'bad': 0})
 apple_indicates = apple_quality.drop(["Quality", "A_id"], axis=1)

@@ -1,3 +1,6 @@
+"""
+使用xuhongzuo库中的GOAD无监督异常检测器进行异常检测，在svm分类模型上测试
+"""
 # unsupervised methods
 from deepod.models.tabular import GOAD
 from deepod.models.tabular import RCA
@@ -11,6 +14,9 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import matplotlib
 from sklearn.decomposition import PCA
+import sys
+
+sys.path.append('E:/xuhongzuo/Rovas/')
 
 epochs = 1
 device = 'cuda' if torch.cuda.is_available() else 'cpu'

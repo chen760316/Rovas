@@ -1,3 +1,6 @@
+"""
+生成一个以异常检测器作为列的csv文件，行为数据集对应元组，最后两列分别为svm预测标签，以及svm是否分类正确（分类正确为1）
+"""
 # unsupervised methods
 from deepod.models import REPEN, SLAD, ICL, NeuTraL
 from deepod.models.tabular import GOAD
@@ -27,11 +30,12 @@ kaggle datasets
 """
 file_path = "../../kaggle_datasets/Apple_Quality/apple_quality.csv"
 apple_quality = pd.read_csv(file_path)
-enc = LabelEncoder()
-apple_quality['Quality'] = enc.fit_transform(apple_quality['Quality'])
+apple_quality['Quality'] = apple_quality['Quality'].replace({'good': 1, 'bad': 0})
+# enc = LabelEncoder()
+# apple_quality['Quality'] = enc.fit_transform(apple_quality['Quality'])
 X = apple_quality.values[:,1:8]
 y = apple_quality.values[:,8]
-X = StandardScaler().fit_transform(X)
+# X = StandardScaler().fit_transform(X)
 indices = np.arange(len(y))
 X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(X, y, indices, test_size=0.5, random_state=1)
     

@@ -1,0 +1,2 @@
+alaem.csv和win95pts.csv为两个服从贝叶斯条件分布的合成数据，来自外部数据源
+参考生成网址：https://www.bnlearn.com/bnrepository/

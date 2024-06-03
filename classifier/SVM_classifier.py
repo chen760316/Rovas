@@ -5,8 +5,11 @@ from sklearn.model_selection import train_test_split #划分数据集与测试�
 from sklearn import svm #导入算法模块
 from sklearn.metrics import accuracy_score #导入评分模块
 ###################
+import sys
 
-file_path = "..\\kaggle datasets\\Apple Quality\\apple_quality.csv"
+sys.path.append('E:/xuhongzuo/Rovas/')
+
+file_path = "../kaggle_datasets/Apple_Quality/apple_quality.csv"
 apple_quality = pd.read_csv(file_path)
 apple_quality['Quality'] = apple_quality['Quality'].replace({'good': 1, 'bad': 0})
 missing_values = apple_quality.isnull()

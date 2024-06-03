@@ -5,8 +5,11 @@ import matplotlib
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.decomposition import PCA
+import sys
 
-file_path = '..\\kaggle datasets\\Iris Species\\Iris.csv'
+sys.path.append('E:/xuhongzuo/Rovas/')
+
+file_path = '../kaggle_datasets/Iris_Species/Iris.csv'
 iris = pd.read_csv(file_path)
 iris['Species'] = iris['Species'].replace({'Iris-setosa': 2, 'Iris-versicolor': 1, 'Iris-virginica': 0})
 iris_indicates = iris.drop(['Species', 'Id'], axis=1)

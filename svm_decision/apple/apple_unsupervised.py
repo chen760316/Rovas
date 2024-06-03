@@ -1,4 +1,6 @@
-# unsupervised methods
+"""
+在Apple数据集上测试xuhongzuo库中的无监督方法
+"""
 from deepod.models import REPEN, SLAD, ICL, RDP, NeuTraL
 from deepod.models.tabular import DevNet
 from deepod.models.tabular import GOAD
@@ -30,7 +32,7 @@ apple_quality['Quality'] = apple_quality['Quality'].replace({'good': 1, 'bad': 0
 apple_indicates = apple_quality.drop(["Quality", "A_id"], axis=1)
 X_train, X_test, y_train, y_test = \
     train_test_split(apple_indicates, apple_quality["Quality"],
-                     test_size=0.33, random_state=1)
+                     test_size=0.5, random_state=1)
 X_train = X_train.values
 X_test = X_test.values
 """GOAD"""
@@ -40,8 +42,8 @@ X_test = X_test.values
 # clf = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
 # clf.fit(X_train, y=None)
 """RCA"""
-clf = RCA(epochs=epochs, device=device, act='LeakyReLU')
-clf.fit(X_train)
+# clf = RCA(epochs=epochs, device=device, act='LeakyReLU')
+# clf.fit(X_train)
 """DevNet"""
 # clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
 #                           random_state=random_state)
@@ -63,8 +65,8 @@ clf.fit(X_train)
 # clf = RDP(hidden_dims=100, device=device)
 # clf.fit(X_train)
 """NeuTraL"""
-# clf = NeuTraL(epochs=1, device=device)
-# clf.fit(X_train)
+clf = NeuTraL(epochs=1, device=device)
+clf.fit(X_train)
 
 scores = clf.decision_function(X_test)
 pred_labels, confidence = clf.predict(X_test, return_confidence=True)

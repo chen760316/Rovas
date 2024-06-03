@@ -7,7 +7,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import accuracy_score
+import sys
 
+sys.path.append('E:/xuhongzuo/Rovas/')
 """
 GOAD无监督模型训练和预测
 """
@@ -41,7 +43,7 @@ for i in range(len(scores)):
 """
 kaggle datasets
 """
-file_path = "..\\kaggle datasets\\Apple Quality\\apple_quality.csv"
+file_path = "../kaggle_datasets/Apple_Quality/apple_quality.csv"
 apple_quality = pd.read_csv(file_path)
 apple_quality['Quality'] = apple_quality['Quality'].replace({'good': 1, 'bad': 0})
 apple_indicates = apple_quality.drop(["Quality", "A_id"], axis=1)
