@@ -1,3 +1,6 @@
+"""
+借助fpgrowth算法挖掘项集和关联规则
+"""
 import pandas as pd
 
 from mlxtend.frequent_patterns import fpgrowth, association_rules

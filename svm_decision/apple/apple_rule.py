@@ -1,3 +1,6 @@
+"""
+生成一个以异常检测器作为列的csv文件，行为数据集对应元组，最后两列分别为svm预测标签，以及svm是否分类正确（分类正确为1）
+"""
 # unsupervised methods
 from deepod.models import REPEN, SLAD, ICL, NeuTraL
 from deepod.models.tabular import GOAD

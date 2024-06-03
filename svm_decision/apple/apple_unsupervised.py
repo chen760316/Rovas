@@ -1,4 +1,6 @@
-# unsupervised methods
+"""
+在Apple数据集上测试xuhongzuo库中的无监督方法
+"""
 from deepod.models import REPEN, SLAD, ICL, RDP, NeuTraL
 from deepod.models.tabular import DevNet
 from deepod.models.tabular import GOAD

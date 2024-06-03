@@ -1,3 +1,6 @@
+"""
+在Apple数据集上测试xuhongzuo库中的监督方法
+"""
 # unsupervised methods
 from deepod.models import REPEN, SLAD, ICL, RDP, NeuTraL, DeepSAD, FeaWAD, RoSAS, PReNet
 from deepod.models.tabular import DevNet
