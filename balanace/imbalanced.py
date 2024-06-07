@@ -10,7 +10,7 @@ class Imbalanced(object):
                 self.hashmap[item] = 1
         
         self.min_value, self.min_counter = min(self.hashmap.items(), key=lambda x: x[1])
-        self.second_min_counter = min([x for x in self.hashmap.values() if x != self.min_counter]) 
+        self.second_min_counter = min(filter(lambda x : x != self.min_counter, self.hashmap.values()))
         
     
     def enum_check(self, tA, delta) -> bool:
