@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
 import winreg
-from sklearn.model_selection import train_test_split #划分数据集与测试集
-from sklearn import svm #导入算法模块
-from sklearn.metrics import accuracy_score #导入评分模块
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.metrics import accuracy_score
 ###################
 import sys
 
@@ -21,9 +21,9 @@ X_train, X_test, y_train, y_test = train_test_split(apple_indicates, apple_quali
 # svm_linear = svm.LinearSVC()
 svm_linear = svm.SVC(C=10)
 # svm_linear = svm.SVC(C=1, kernel="linear", decision_function_shape="ovr")
-svm_rbf = svm.SVC(C=1, kernel="rbf", decision_function_shape="ovr")
-svm_poly = svm.SVC(C=1, kernel="poly", decision_function_shape="ovr")
-svm_sigmoid = svm.SVC(C=1, kernel="sigmoid", decision_function_shape="ovr")
+# svm_rbf = svm.SVC(C=1, kernel="rbf", decision_function_shape="ovr")
+# svm_poly = svm.SVC(C=1, kernel="poly", decision_function_shape="ovr")
+# svm_sigmoid = svm.SVC(C=1, kernel="sigmoid", decision_function_shape="ovr")
 svm_model = svm_linear
 svm_model.fit(X_train, y_train)
 print("SVM训练模型评分：" + str(accuracy_score(y_train, svm_model.predict(X_train))))

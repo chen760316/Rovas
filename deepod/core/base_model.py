@@ -444,10 +444,15 @@ class BaseDeepAD(metaclass=ABCMeta):
                     break
 
             t = time.time() - t1
-            if self.verbose >= 1 and (i == 0 or (i+1) % self.prt_steps == 0):
+            # 更改损失信息打印条件，每个epoch结束都打印损失信息
+            if self.verbose >= 1:
                 print(f'epoch{i+1:3d}, '
                       f'training loss: {total_loss/cnt:.6f}, '
                       f'time: {t:.1f}s')
+            # if self.verbose >= 1 and (i == 0 or (i+1) % self.prt_steps == 0):
+            #     print(f'epoch{i+1:3d}, '
+            #           f'training loss: {total_loss/cnt:.6f}, '
+            #           f'time: {t:.1f}s')
 
             if i == 0:
                 self.epoch_time = t
