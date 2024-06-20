@@ -7,7 +7,7 @@
 5、SVM训练目标为找到每个类别的分类超平面，通常不涉及多轮迭代训练损失函数
 """
 # unsupervised methods
-from deepod.models import REPEN, SLAD, ICL, NeuTraL
+from deepod.models import REPEN, SLAD, ICL, NeuTraL, DeepSAD
 from deepod.models.tabular import GOAD
 from deepod.models.tabular import RCA
 from deepod.models.tabular import DeepSVDD
@@ -104,12 +104,36 @@ GOAD异常检测器
 """
 clf = GOAD(epochs=epochs, device=device, n_trans=n_trans)
 clf.fit(X_train, y=None)
+
+"""
+DeepSAD异常检测器
+"""
+# clf = DeepSAD(epochs=1, hidden_dims=20,
+#                    device=device,
+#                    random_state=42)
+# anom_id = np.where(y_train == 1)[0]
+# known_anom_id = np.random.choice(anom_id, 10, replace=False)
+# y_semi = np.zeros_like(y_train, dtype=int)
+# y_semi[known_anom_id] = 1
+# clf.fit(X_train, y_semi)
+
 scores = clf.decision_function(X_test)
 pred_labels, confidence = clf.predict(X_test, return_confidence=True)
 print("训练集中异常值判定阈值为：", clf.threshold_)
-
 outliers_index = []
 test_class_num = 0
+
+# 训练集上的分数
+train_scores = clf.decision_function(X_train)
+train_pred_labels, train_confidence = clf.predict(X_train, return_confidence=True)
+print("训练集中异常值判定阈值为：", clf.threshold_)
+train_outliers_index = []
+print("训练集样本数：", len(X_train))
+for i in range(len(X_train)):
+    if train_pred_labels[i] == 1:
+        train_outliers_index.append(i)
+print("训练集中异常值索引：", train_outliers_index)
+print("训练集中的异常值数量：", len(train_outliers_index))
 
 # # 测试集中指定标签列类别为target_class下的异常值检测
 # for i in range(len(scores)):
