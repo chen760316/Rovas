@@ -114,45 +114,6 @@ print("基于hinge损失的训练集上标签的SVM分类准确度：" + str(acc
 train_losses = hinge_loss(y_train, decision_values, labels=np.unique(y_train))
 print("整个训练集下的平均hinge损失：", train_losses)
 
-# section 计算训练样本的迭代损失
-# 训练过程中记录每轮迭代的损失值
-losses_per_iteration = []
-# 开始训练迭代
-interval = 30
-# outlier_out_threshold为被异常检测器判定为异常值，且其hinge损失高于阈值的样本
-outlier_out_threshold = [1794, 1669, 775, 3472, 1044, 535, 5400, 4637, 1821, 42, 6570, 4784, 2745, 4155, 4162, 5575, 6216, 5196, 6745, 3036, 6238, 1118, 5854, 999, 4968, 1773, 4847, 370]
-for iteration in range(10):  # 假设迭代10轮
-    svm_iteration = svm.SVC(max_iter=interval*(iteration+1))
-    # 在每轮迭代中训练 SVM 分类器
-    svm_iteration.fit(X_train, y_train)
-    # 获取决策函数值
-    decision_values = svm_iteration.decision_function(X_train)
-    num_classes_iteration = svm_iteration.classes_.shape[0]
-    # 计算每个样本的 hinge 损失
-    mean_hinge_losses = hinge_loss(y_train, decision_values)
-    # 将每轮迭代的损失值记录下来
-    losses_per_iteration.append(mean_hinge_losses)
-    num_samples = X_train.shape[0]
-    num_classes = svm_iteration.classes_.shape[0]
-    hinge_losses = np.zeros((num_samples, num_classes))
-    hinge_loss_per_sample = np.zeros(num_samples)
-    print("-"*100)
-    print(f"Iteration {(iteration + 1) * interval}")
-    for i in outlier_out_threshold:
-        correct_class = int(y_train[i])
-        for j in range(num_classes_iteration):
-            if j != correct_class:
-                loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
-                hinge_losses[i, j] = loss_j
-        hinge_loss_per_sample[i] = np.max(hinge_losses[i])
-        print(f"Sample {i} has hinge losses = {hinge_loss_per_sample[i]}")
-    print("-" * 100)
-# 输出每轮迭代的损失值
-print("*" * 100)
-for i, losses in enumerate(losses_per_iteration):
-    print(f"Iteration {(i + 1)*interval}: Mean hinge loss = {np.mean(losses)}")
-print("*" * 100)
-
 # section 计算每个样本的hinge损失
 num_samples = X_train.shape[0]
 num_classes = svm_model.classes_.shape[0]
@@ -164,7 +125,7 @@ for i in range(num_samples):
         if j != correct_class:
             loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
             hinge_losses[i, j] = loss_j
-    hinge_loss_per_sample[i] = np.max(hinge_losses[i])
+    hinge_loss_per_sample[i] = np.sum(hinge_losses[i])
 # 判定异常：假设阈值为 1，超过此值即认为是异常
 anomalies = np.where(hinge_loss_per_sample > 1)[0]
 soft_anomalies = np.where((hinge_loss_per_sample > 0) & (hinge_loss_per_sample <= 1))[0]
@@ -237,4 +198,43 @@ svm_model_o.fit(X_train_o, y_train_o)
 print("*" * 100)
 print("去除判定为异常的样本后的训练集SVM分类准确度：" + str(accuracy_score(y_train_o, svm_model_o.predict(X_train_o))))
 print("去除判定为异常的样本后的测试集SVM分类准确度：" + str(accuracy_score(y_test, svm_model_o.predict(X_test))))
+print("*" * 100)
+
+# section 计算训练样本的迭代损失
+# 训练过程中记录每轮迭代的损失值
+losses_per_iteration = []
+# 开始训练迭代
+interval = 30
+# outlier_out_threshold为被异常检测器判定为异常值，且其hinge损失高于阈值的样本
+outlier_out_threshold = inter_anomalies
+for iteration in range(10):  # 假设迭代10轮
+    svm_iteration = svm.SVC(max_iter=interval*(iteration+1))
+    # 在每轮迭代中训练 SVM 分类器
+    svm_iteration.fit(X_train, y_train)
+    # 获取决策函数值
+    decision_values = svm_iteration.decision_function(X_train)
+    num_classes_iteration = svm_iteration.classes_.shape[0]
+    # 计算每个样本的 hinge 损失
+    mean_hinge_losses = hinge_loss(y_train, decision_values)
+    # 将每轮迭代的损失值记录下来
+    losses_per_iteration.append(mean_hinge_losses)
+    num_samples = X_train.shape[0]
+    num_classes = svm_iteration.classes_.shape[0]
+    hinge_losses = np.zeros((num_samples, num_classes))
+    hinge_loss_per_sample = np.zeros(num_samples)
+    print("-"*100)
+    print(f"Iteration {(iteration + 1) * interval}")
+    for i in outlier_out_threshold:
+        correct_class = int(y_train[i])
+        for j in range(num_classes_iteration):
+            if j != correct_class:
+                loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
+                hinge_losses[i, j] = loss_j
+        hinge_loss_per_sample[i] = np.sum(hinge_losses[i])
+        print(f"Sample {i} has hinge losses = {hinge_loss_per_sample[i]}")
+    print("-" * 100)
+# 输出每轮迭代的损失值
+print("*" * 100)
+for i, losses in enumerate(losses_per_iteration):
+    print(f"Iteration {(i + 1)*interval}: Mean hinge loss = {np.mean(losses)}")
 print("*" * 100)
