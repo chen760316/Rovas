@@ -1,6 +1,6 @@
 """
-使用SVM训练集求解hinge损失函数，因为测试集标签不可见
-SVM和异常检测器使用相同的训练集和测试集
+使用softmax训练集求解交叉熵损失函数，因为测试集标签不可见
+softmax分类器和异常检测器使用相同的训练集和测试集
 异常检测器直接输出在训练集上的异常值
 """
 # unsupervised methods
@@ -137,7 +137,7 @@ std_loss = np.std(cross_entropy_loss)
 threshold = mean_loss + 2 * std_loss
 anomalies = np.where(cross_entropy_loss >= threshold)[0]
 correct_samples = np.where(cross_entropy_loss <= threshold)[0]
-# 输出训练集中outliers中具有较高hinge损失的样本索引
+# 输出训练集中outliers中具有较高交叉熵损失的样本索引
 # 训练数据中的异常值中交叉熵损失较大，对softmax分类器有害的样本
 inter_anomalies = list(set(train_outliers_index) & set(anomalies))
 # 训练数据中的异常值中交叉熵损失较小的样本
@@ -157,23 +157,23 @@ print("训练集的异常值中交叉熵损失较低的的样本索引：", inte
 
 # SECTION 原始数据中的softmax分类准确度
 print("*" * 100)
-print("原始训练集中SVM分类准确度：" + str(accuracy_score(y_train, softmax_classifier.predict(X_train))))
-print("原始测试集中SVM分类准确度：" + str(accuracy_score(y_test, softmax_classifier.predict(X_test))))
+print("原始训练集中softmax分类准确度：" + str(accuracy_score(y_train, softmax_classifier.predict(X_train))))
+print("原始测试集中softmax分类准确度：" + str(accuracy_score(y_test, softmax_classifier.predict(X_test))))
 print("*" * 100)
 
 # SECTION 舍弃掉softmax训练数据中交叉熵损失较高，且被判定为异常值的样本，重新在处理后的训练数据上训练softmax分类器
 # 生成布尔索引，为要删除的行创建布尔值数组
 mask = np.ones(len(X_train), dtype=bool)
 mask[inter_anomalies] = False
-# 使用布尔索引删除那些既被判定为异常值，又使得hinge损失高于1的样本
+# 使用布尔索引删除那些既被判定为异常值，又具有较高交叉熵损失值的样本
 X_train_split = X_train[mask]
 y_train_split = y_train[mask]
 # 重新训练softmax模型
 softmax_classifier_split = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42)
 softmax_classifier_split.fit(X_train_split, y_train_split)
 print("*" * 100)
-print("去除同时满足异常和损失高于阈值的样本后的训练集SVM分类准确度：" + str(accuracy_score(y_train_split, softmax_classifier_split.predict(X_train_split))))
-print("去除同时满足异常和损失高于阈值的样本后的测试集SVM分类准确度：" + str(accuracy_score(y_test, softmax_classifier_split.predict(X_test))))
+print("去除同时满足异常和损失高于阈值的样本后的训练集softmax分类准确度：" + str(accuracy_score(y_train_split, softmax_classifier_split.predict(X_train_split))))
+print("去除同时满足异常和损失高于阈值的样本后的测试集softmax分类准确度：" + str(accuracy_score(y_test, softmax_classifier_split.predict(X_test))))
 print("*" * 100)
 
 # SECTION 舍弃掉softmax分类器中交叉熵损失高于阈值的样本，重新在处理后的训练数据上训练softmax分类器
@@ -184,8 +184,8 @@ y_train_cross = y_train[mask_cross]
 softmax_classifier_cross = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42)
 softmax_classifier_cross.fit(X_train_cross, y_train_cross)
 print("*" * 100)
-print("去除损失高于阈值的样本后的训练集SVM分类准确度：" + str(accuracy_score(y_train_cross, softmax_classifier_cross.predict(X_train_cross))))
-print("去除损失高于阈值的样本后的测试集SVM分类准确度：" + str(accuracy_score(y_test, softmax_classifier_cross.predict(X_test))))
+print("去除损失高于阈值的样本后的训练集softmax分类准确度：" + str(accuracy_score(y_train_cross, softmax_classifier_cross.predict(X_train_cross))))
+print("去除损失高于阈值的样本后的测试集softmax分类准确度：" + str(accuracy_score(y_test, softmax_classifier_cross.predict(X_test))))
 print("*" * 100)
 
 # SECTION 舍弃掉softmax训练数据中被判定为异常值的样本，重新在处理后的训练数据上训练softmax分类器
@@ -196,8 +196,8 @@ y_train_o = y_train[mask_o]
 softmax_classifier_o = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42)
 softmax_classifier_o.fit(X_train_o, y_train_o)
 print("*" * 100)
-print("去除判定为异常的样本后的训练集SVM分类准确度：" + str(accuracy_score(y_train_o, softmax_classifier_o.predict(X_train_o))))
-print("去除判定为异常的样本后的测试集SVM分类准确度：" + str(accuracy_score(y_test, softmax_classifier_o.predict(X_test))))
+print("去除判定为异常的样本后的训练集softmax分类准确度：" + str(accuracy_score(y_train_o, softmax_classifier_o.predict(X_train_o))))
+print("去除判定为异常的样本后的测试集softmax分类准确度：" + str(accuracy_score(y_test, softmax_classifier_o.predict(X_test))))
 print("*" * 100)
 
 # section 计算训练样本的迭代损失
@@ -209,7 +209,7 @@ interval = 1
 outlier_out_threshold = inter_anomalies
 for iteration in range(10):  # 假设迭代10轮
     softmax_classifier_iteration = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, max_iter=interval*(iteration+1))
-    # 在每轮迭代中训练 SVM 分类器
+    # 在每轮迭代中训练 softmax 分类器
     softmax_classifier_iteration.fit(X_train, y_train)
     # 获取决策函数值
     decision_values = softmax_classifier_iteration.decision_function(X_train)
