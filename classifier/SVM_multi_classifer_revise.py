@@ -113,11 +113,12 @@ for feature in categorical_features:
 # X = StandardScaler().fit_transform(X)
 # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
-# SECTION GOAD异常检测器
+# SECTION M𝑜 (𝑡, D),针对元组异常的异常检测器
+# SUBSECTION  GOAD异常检测器
 clf = GOAD(epochs=epochs, device=device, n_trans=n_trans)
 clf.fit(X_train, y=None)
 
-# SECTION DeepSAD异常检测器
+# SUBSECTION DeepSAD异常检测器
 # clf = DeepSAD(epochs=1, hidden_dims=20,
 #                    device=device,
 #                    random_state=42)
@@ -139,7 +140,7 @@ for i in range(len(X_train)):
 print("训练集中异常值索引：", train_outliers_index)
 print("训练集中的异常值数量：", len(train_outliers_index))
 
-# SECTION 在训练集中引入有影响力的特征
+# SECTION M𝑐 (𝑅, 𝐴,M)，在训练集中引入有影响力的特征
 # # SUBSECTION 借助方差判别有影响力的特征
 # top_k_var = 6
 # variances = np.var(X_train, axis=0)
@@ -376,6 +377,8 @@ print("训练集中的异常值数量：", len(train_outliers_index))
 # threshold = 0.01
 # # 找到异常点
 # outliers_indices = np.where(densities < threshold)[0]
+# dist.plot()
+# plt.show()
 # print("位于dist拟合的数据分布外的异常点索引:", outliers_indices)
 # print("位于dist拟合的数据分布外的异常点数量:", len(outliers_indices))
 
@@ -404,10 +407,91 @@ print("训练集中的异常值数量：", len(train_outliers_index))
 # threshold = 0.01  # 举例设定阈值
 # outliers_indices = np.where(densities < threshold)[0]
 # print("位于filter fitting拟合的数据分布外的异常点索引:", outliers_indices)
+
 # print("位于filter fitting拟合的数据分布外的异常点数量:", len(outliers_indices))
 
 # subsection 采用分段拟合方法拟合单列数据分布的方法寻找满足outlier(𝐷, 𝑅, 𝑡.𝐴, 𝜃)的元组索引(需要指定拟合函数的形式)
 
+# section imbalanced(𝐷, 𝑅, 𝑡.𝐴, 𝛿)，如果D中按t.A分组的元组数量比其他组的计数小A值(至少小一个因子𝛿)，则返回true，否则返回false
+# subsection 从字面意思的具体值出现频率判断是否不平衡,实现imbalanced(𝐷, 𝑅, 𝑡.𝐴, 𝛿)，基础版本
+# import balanace.imbalanced as im
+# col_indices = 16
+# feature = feature_names[col_indices]
+# data_copy = pd.read_excel(file_path).astype(str)
+# imbalanced = im.Imbalanced(data_copy, feature)
+# ta = "SEKER"
+# delta = 2
+# print(imbalanced.enum_check(ta, delta))
+
+# subsection 从字面意思实现imbalanced(𝐷, 𝑅, 𝑡.𝐴, 𝛿)，改进版本，对列进行标准化和分箱，判断分箱中的元素数是否达到不平衡
+# from sklearn.preprocessing import MinMaxScaler
+# # 设置分箱中元组数相差阈值
+# delta = 0.01
+# # 设置分组的间隔
+# interval = 0.01
+# # 初始化MinMaxScaler
+# scaler = MinMaxScaler()
+# col_indices = 3
+# select_feature = feature_names[col_indices]
+# data_copy = pd.read_excel(file_path)
+# data_copy[data.columns] = scaler.fit_transform(data[data.columns])
+# # 对每列数据进行分组
+# bins = np.arange(0, 1.01, interval)  # 生成0-1之间100个间隔的数组
+# # 统计每列数据占据了多少个间隔
+# # for column in data_copy.columns:
+# #     digitized = np.digitize(data_copy[column], bins)
+# #     unique_bins, counts = np.unique(digitized, return_counts=True)
+# #     print(f"列 '{column}' 占据了 {len(unique_bins)} 个间隔")
+# #     # 统计包含最大元素数和最小元素数的差值
+# #     max_elements = np.max(counts)
+# #     min_elements = np.min(counts)
+# #     difference = max_elements - min_elements
+# #     print(f"列 '{column}' bins中包含最多的元组数和最少的元组数相差了 {difference}")
+# digitized = np.digitize(data_copy[select_feature], bins)
+# unique_bins, counts = np.unique(digitized, return_counts=True)
+# print(f"列 '{select_feature}' 占据了 {len(unique_bins)} 个间隔")
+# # 统计包含最大元素数和最小元素数的差值
+# max_elements = np.max(counts)
+# min_elements = np.min(counts)
+# difference = max_elements - min_elements
+# print(f"列 '{select_feature}' bins中包含最多的元组数和最少的元组数相差了 {difference}")
+# print("所选列是否不平衡：", difference/data_copy.shape[0] >= delta)
+
+# SECTION SDomain(𝐷, 𝑅, 𝐴, 𝜎)，如果D的A属性的不同值数量小于界限𝜎，则返回true
+# subsection 从字面意思A列的不同值数量是否明显小于其他列
+# import balanace.sdomain as sd
+# col_indices = 16
+# # 设置每列不同元素数量要达到的最小阈值
+# sigma = 2
+# feature = feature_names[col_indices]
+# data_copy = pd.read_excel(file_path)
+# imbalanced = sd.SDomian(data_copy, feature)
+# print("所选列的活动域是否很小：", imbalanced.enum_check(sigma))
+
+# subsection 从字面意思A列的不同值数量是否明显小于其他列，改进版本，对列的值进行标准化后分箱判断分箱的数量
+# from sklearn.preprocessing import MinMaxScaler
+# # 设置分组的间隔
+# interval = 0.01
+# # 初始化MinMaxScaler
+# scaler = MinMaxScaler()
+# col_indices = 3
+# select_feature = feature_names[col_indices]
+# data_copy = pd.read_excel(file_path)
+# data_copy[data.columns] = scaler.fit_transform(data[data.columns])
+# # 对每列数据进行分组
+# bins = np.arange(0, 1.01, interval)  # 生成0-1之间100个间隔的数组
+# # 统计每列数据占据了多少个间隔
+# total_bins = 0
+# selected_bins = 0
+# for column in data_copy.columns:
+#     digitized = np.digitize(data_copy[column], bins)
+#     unique_bins, counts = np.unique(digitized, return_counts=True)
+#     print(f"列 '{column}' 占据了 {len(unique_bins)} 个间隔")
+#     total_bins += len(unique_bins)
+#     if column == select_feature:
+#         selected_bins = len(unique_bins)
+# mean_bins = total_bins / len(data_copy.columns)
+# print("所选特征是否活动域很小：", selected_bins < mean_bins)
 
 # SECTION SVM模型训练和分类准确度
 svm_model = svm.SVC()
