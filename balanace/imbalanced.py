@@ -1,7 +1,7 @@
 import pandas as pd
 class Imbalanced(object):
-    def __init__(self, filename, attribute) -> None:
-        self.column = pd.read_csv(filename)[attribute]
+    def __init__(self, df, attribute) -> None:
+        self.column = df[attribute]
         self.hashmap = {}
         for item in self.column:
             if item in self.hashmap:
@@ -19,21 +19,21 @@ class Imbalanced(object):
     
     def enum_check_min(self, tA, delta) -> bool:
         if tA == self.min_value:
-            if self.second_min_counter - self.hashmap[tA] < delta:
-                return True
-            return False
-        elif self.hashmap[tA] - self.min_counter < delta * self.equal_size:
+            if self.max_value - self.hashmap[tA] < delta * self.equal_size:
+                return False
             return True
-        return False
+        elif self.hashmap[tA] - self.min_counter < delta * self.equal_size:
+            return False
+        return True
     
     def enum_check_max(self, tA, delta) -> bool:
         if tA == self.max_value:
-            if self.hashmap[tA] - self.second_max_counter < delta * self.equal_size:
-                return True
-            return False
-        elif self.max_counter - self.hashmap[tA] < delta:
+            if self.hashmap[tA] - self.min_value < delta * self.equal_size:
+                return False
             return True
-        return False
+        elif self.max_counter - self.hashmap[tA] < delta * self.equal_size:
+            return False
+        return True
     
     def enum_check(self, tA, delta) -> bool:
         return self.enum_check_min(tA, delta) or self.enum_check_max(tA, delta)
@@ -42,7 +42,8 @@ class Imbalanced(object):
 if __name__ == "__main__":
     filename = "../kaggle_datasets/balita/data_balita.csv"
     attribute = "Nutrition_Status"
-    imbalanced = Imbalanced(filename, attribute)
+    df = pd.read_csv(filename)
+    imbalanced = Imbalanced(df, attribute)
     tA = "normal"
     delta = 2
     print(imbalanced.enum_check(tA, delta))
