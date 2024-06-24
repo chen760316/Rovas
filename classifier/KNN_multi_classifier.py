@@ -183,7 +183,7 @@ plt.ylabel('Mean Error')
 
 # SECTION KNN是基于实例的方法，并不涉及损失函数的优化,对于 KNN 模型，更适合的是使用距离度量的优化和评估方法，如准确率、召回率等。
 
-# SECTION 原始数据中的softmax分类准确度
+# SECTION 原始数据中的KNN分类准确度
 print("*" * 100)
 print("原始训练集中KNN的分类准确度：" + str(accuracy_score(y_train, knn.predict(X_train))))
 print("原始测试集中KNN的分类准确度：" + str(accuracy_score(y_test, knn.predict(X_test))))
@@ -193,10 +193,10 @@ print("*" * 100)
 # 生成布尔索引，为要删除的行创建布尔值数组
 mask = np.ones(len(X_train), dtype=bool)
 mask[diff_indices] = False
-# 使用布尔索引删除那些既被判定为异常值，又具有较高交叉熵损失值的样本
+# 使用布尔索引删除那些既被判定为异常值，又被KNN分类错误的样本
 X_train_split = X_train[mask]
 y_train_split = y_train[mask]
-# 重新训练softmax模型
+# 重新训练KNN模型
 knn_split = KNeighborsClassifier(n_neighbors=22)
 knn_split.fit(X_train_split, y_train_split)
 print("*" * 100)
