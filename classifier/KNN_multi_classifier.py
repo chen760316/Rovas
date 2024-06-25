@@ -1,6 +1,7 @@
 """
 KNN是基于实例的方法，并不涉及损失函数的优化,对于 KNN 模型，更适合的是使用距离度量的优化和评估方法，如准确率、召回率等。
 KNN中不涉及显式的训练过程和相应的损失函数，也不涉及迭代损失，其根据整个训练数据集进行多数投票
+KNN在训练阶段本质上是一个存储数据的过程，不涉及显式的迭代或参数更新
 """
 # unsupervised methods
 from deepod.models import REPEN, SLAD, ICL, NeuTraL, DeepSAD

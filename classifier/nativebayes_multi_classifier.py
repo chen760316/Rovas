@@ -3,6 +3,7 @@
 1、GaussianNB：GaussianNB就是先验为高斯分布（正态分布）的朴素贝叶斯，假设每个标签的数据都服从简单的正态分布
 2、MultinomialNB：MultinomialNB就是先验为多项式分布的朴素贝叶斯。它假设特征是由一个简单多项式分布生成的
 3、BernoulliNB：BernoulliNB就是先验为伯努利分布的朴素贝叶斯，在文本分类中，就是一个特征有没有在一个文档中出现
+4、朴素贝叶斯在训练阶段并不涉及迭代更新模型参数的过程，而是根据贝叶斯公式直接计算和存储概率分布
 总结：
 如果样本特征的分布大部分是连续值，使用GaussianNB会比较好；
 如果样本特征的分布大部分是多元离散值，使用MultinomialNB比较合适(常用于文本分类)；
@@ -125,18 +126,26 @@ diff_indices = np.where(y_train_outliers != bayes_clf.predict(X_train_outliers))
 
 # SECTION 朴素贝叶斯模型评价
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.calibration import CalibratedClassifierCV
 # 混淆矩阵，横轴为类别索引，纵轴为预测是否属于该类别，属于的话标明支持样本的数量
 print(confusion_matrix(y_test, bayes_clf.predict(X_test)))
 # macro avg：宏平均， 对指标所属各个类别的值直接取平均
 # weighted avg ：加权平均，结合各个类别的数量加权取平均
 print(classification_report(y_test, bayes_clf.predict(X_test)))
+# 使用sigmoid校准创建校准交叉验证
+clf_sigmoid = CalibratedClassifierCV(bayes_clf, cv=2, method='sigmoid')
+# 校准的概率，返回包装器clf_sigmoid
+clf_sigmoid.fit(X_train, y_train)
+print("校准后的概率：", clf_sigmoid.score(X_train, y_train))
 
 # section 朴素贝叶斯是基于概率生成的方法，并不涉及损失函数的优化,对于朴素贝叶斯模型，更适合的评价指标如准确率、召回率等。
 
-# SECTION 原始数据中的朴素贝叶斯的分类准确度
+# SECTION 原始数据中的朴素贝叶斯的分类准确度，以及经过交叉验证校准后的分类准确度
 print("*" * 100)
 print("原始训练集中朴素贝叶斯的分类准确度：" + str(accuracy_score(y_train, bayes_clf.predict(X_train))))
 print("原始测试集中朴素贝叶斯的分类准确度：" + str(accuracy_score(y_test, bayes_clf.predict(X_test))))
+print("原始训练集中朴素贝叶斯校准后的分类准确度：" + str(accuracy_score(y_train, clf_sigmoid.predict(X_train))))
+print("原始测试集中朴素贝叶斯校准后的分类准确度：" + str(accuracy_score(y_test, clf_sigmoid.predict(X_test))))
 print("*" * 100)
 
 # SECTION 舍弃掉朴素贝叶斯中分类错误的，且被判定为异常值的样本，重新在处理后的训练数据上训练朴素贝叶斯
