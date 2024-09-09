@@ -55,24 +55,24 @@ target_class = 0
 
 # SECTION kaggle datasets上的数据预处理
 # SUBSECTION dry_bean数据集
-file_path = "../UCI_datasets/dry+bean+dataset/DryBeanDataset/Dry_Bean_Dataset.xlsx"
-data = pd.read_excel(file_path)
-enc = LabelEncoder()
-data['Class'] = enc.fit_transform(data['Class'])
-X = data.values[:,0:16]
-y = data.values[:,16]
-# 对不同维度进行标准化
-X = StandardScaler().fit_transform(X)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=1)
-class_names = enc.classes_
-feature_names = data.columns.values.tolist()
-categorical_features = [0, 6]
-categorical_names = {}
-for feature in categorical_features:
-    le = LabelEncoder()
-    le.fit(data.iloc[:, feature])
-    data.iloc[:, feature] = le.transform(data.iloc[:, feature])
-    categorical_names[feature] = le.classes_
+# file_path = "../UCI_datasets/dry+bean+dataset/DryBeanDataset/Dry_Bean_Dataset.xlsx"
+# data = pd.read_excel(file_path)
+# enc = LabelEncoder()
+# data['Class'] = enc.fit_transform(data['Class'])
+# X = data.values[:,0:16]
+# y = data.values[:,16]
+# # 对不同维度进行标准化
+# X = StandardScaler().fit_transform(X)
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=1)
+# class_names = enc.classes_
+# feature_names = data.columns.values.tolist()
+# categorical_features = [0, 6]
+# categorical_names = {}
+# for feature in categorical_features:
+#     le = LabelEncoder()
+#     le.fit(data.iloc[:, feature])
+#     data.iloc[:, feature] = le.transform(data.iloc[:, feature])
+#     categorical_names[feature] = le.classes_
 
 # SUBSECTION obesity数据集
 # file_path = "../kaggle_datasets/Obesity_prediction/obesity_data.csv"
@@ -98,20 +98,20 @@ for feature in categorical_features:
 # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
 # SUBSECTION wine-quality数据集
-# file_path = "../UCI_datasets/wine+quality/winequality-white.csv"
-# label_col_name = "quality"
-# data = pd.read_csv(file_path, sep=';')
-# enc = LabelEncoder()
-# data[label_col_name] = enc.fit_transform(data[label_col_name])
-# feature_names = data.columns[:-1].tolist()
-# data[feature_names] = data[feature_names].astype(float)
-# data[label_col_name] = data[label_col_name].astype(int)
-# num_col = data.shape[1]
-# X = data.values[:, 0:num_col-1]
-# y = data.values[:, num_col-1]
-# # 对不同维度进行标准化
-# X = StandardScaler().fit_transform(X)
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+file_path = "../UCI_datasets/wine+quality/winequality-white.csv"
+label_col_name = "quality"
+data = pd.read_csv(file_path, sep=';')
+enc = LabelEncoder()
+data[label_col_name] = enc.fit_transform(data[label_col_name])
+feature_names = data.columns[:-1].tolist()
+data[feature_names] = data[feature_names].astype(float)
+data[label_col_name] = data[label_col_name].astype(int)
+num_col = data.shape[1]
+X = data.values[:, 0:num_col-1]
+y = data.values[:, num_col-1]
+# 对不同维度进行标准化
+X = StandardScaler().fit_transform(X)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
 # SECTION M𝑜 (𝑡, D),针对元组异常的异常检测器
 # SUBSECTION  GOAD异常检测器

@@ -100,7 +100,8 @@ for i in range(len(X_train)):
 print("训练集中异常值索引：", train_outliers_index)
 print("训练集中的异常值数量：", len(train_outliers_index))
 
-# SECTION Scikit-learn中的决策树模型（例如DecisionTreeClassifier）默认使用基尼系数（Gini impurity）作为分裂标准,决策树在训练时并不直接优化损失函数，而是根据给定的分裂标准递归地构建树，直到达到停止条件为止
+# SECTION Scikit-learn中的决策树模型（例如DecisionTreeClassifier）默认使用基尼系数（Gini impurity）作为分裂标准,
+#  决策树在训练时并不直接优化损失函数，而是根据给定的分裂标准递归地构建树，直到达到停止条件为止
 from sklearn.metrics import classification_report, confusion_matrix
 cart_classifier = DecisionTreeClassifier()
 # cart_classifier = DecisionTreeClassifier(criterion='entropy', random_state=random_state)
