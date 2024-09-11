@@ -1,0 +1,30 @@
+一、已有的异常检测器：
+
+1、无监督异常检测器：GOAD、DeepSVDD、RCA、RePEN、SLAD、ICL、NeuTraL
+2、有监督异常检测器：DevNet、DeepSAD、RoSAS、PReNeT
+
+二、已有的数据集：
+
+dry bean、obesity、wine quality、apple quality、balita、iris、wine、adult
+
+三、现有的评价指标：
+
+accuracy（分类准确度）、F1 分数、ROC-AUC 分数、precision（分类精确度）、recall（召回率）、Confusion Matrix（混淆矩阵）、Precision-Recall Curve （PR曲线）
+
+Matthews Correlation Coefficient (MCC)、F-beta Score、Area Under Precision-Recall Curve (PR AUC)、Balanced Accuracy、G-Mean、Average Precision (AP)
+
+可扩展的指标如下：
+1、Matthews Correlation Coefficient (MCC): 这个指标综合考虑了真阳性、真阴性、假阳性和假阴性。MCC 的值在 [-1, 1] 范围内，1 表示完美分类，0 表示随机分类，-1 表示完全错误的分类。
+2、Balanced Accuracy: 这是对分类器准确度的调整，尤其在类别不平衡时。它是各类别召回率的平均值。
+3、Kappa Statistic (Cohen’s Kappa): 这个指标用来测量分类器的预测结果与随机预测结果之间的一致性。它考虑了偶然的一致性。
+4、G-Mean: 这个指标是各类别召回率的几何平均值。它在处理不平衡数据集时非常有用。
+5、Log-Loss (Logarithmic Loss): 这个指标用来评估分类器的概率预测质量，尤其是在概率预测时比准确度更有用。它计算的是预测概率与实际标签之间的差距。
+6、Brier Score: 类似于 Log-Loss，用于评估概率预测的准确性，尤其适用于概率模型
+7、Youden's J Statistic: 这个指标用于评估分类器的诊断能力。计算公式是：J=Sensitivity+Specificity−1J=Sensitivity+Specificity−1。
+8、F-beta Score: F1 分数是 F-beta 分数的特例，其中 beta=1。F-beta 分数通过调整 beta 参数来平衡精确度和召回率的权重。beta > 1 更关注召回率，beta < 1 更关注精确度。
+9、Average Precision (AP): 在不同的阈值下计算精确度和召回率的平均值，通常用于评估 PR 曲线下的性能。
+10、Hamming Loss: 计算每个样本的标签预测错误的比例，适用于多标签分类问题。
+11、Top-K Accuracy: 在多类别分类问题中，这个指标检查模型是否能将正确类别的概率排在前 K 名中。
+12、Cumulative Gain and Lift Charts: 这些图表用于评估模型在不同层级的表现，特别是对于营销和广告中的分类问题。
+13、Area Under Precision-Recall Curve (PR AUC): 计算 PR 曲线下的面积，可以用来衡量模型在处理不平衡数据集时的表现。
+14、Kullback-Leibler Divergence (KL Divergence): 用来衡量模型预测分布与实际分布之间的差异，适用于评估概率预测。
