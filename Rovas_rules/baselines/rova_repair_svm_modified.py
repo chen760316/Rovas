@@ -369,9 +369,9 @@ print("加噪测试样本中被SVM模型错误分类的样本占总测试样本�
 print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
-# section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
-#  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
-
+# # section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
+# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
+#
 # # subsection 尝试修复异常数据的标签
 #
 # # 确定数据集D中需要修复的元组和正常元组
@@ -400,6 +400,7 @@ print("完整数据集D中被SVM模型错误分类的样本占总完整数据的
 # y_train[X_train_copy_repair_indices] = y_pred
 #
 # # subsection 重新在修复后的数据上训练SVM模型
+# #  SVC 中的 C 参数控制 L2 正则化的强度。较大的 C 值会减少正则化（即放宽对权重的限制），较小的 C 值会增加正则化（即收缩权重）,没用（C设置0.1以下可以缩小训练集和测试集差异）
 #
 # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
 # # svm_repair = svm.SVC()
@@ -419,6 +420,24 @@ print("完整数据集D中被SVM模型错误分类的样本占总完整数据的
 # # 整体数据集D中被SVM模型错误分类的样本
 # print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test_constant)))
+#
+# # subsection 检验训练集和测试集的分布是否一致（Kolmogorov-Smirnov检验）
+# # 如果p-value很小（通常小于0.05），则可以拒绝原假设，认为两个分布不一致，p-value越大说明特征分布的一致性越高
+#
+# from scipy.stats import ks_2samp
+#
+# # 选择要比较的特征
+# for feature_index in range(X_train_copy.shape[1]):
+#     feature_train = X_train_copy[:, feature_index]
+#     feature_test = X_test_constant[:, feature_index]
+#     ks_statistic, p_value = ks_2samp(feature_train, feature_test)
+#     print(f"{feature_index}-th feature's KS Statistic: {ks_statistic}, p-value: {p_value}")
+#
+# # 选择要比较的标签
+# label_train = y_train
+# label_test = y_test_constant
+# ks_statistic, p_value = ks_2samp(label_train, label_test)
+# print(f"label's KS Statistic: {ks_statistic}, p-value: {p_value}")
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）
 # #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
@@ -456,6 +475,24 @@ print("完整数据集D中被SVM模型错误分类的样本占总完整数据的
 # # 整体数据集D中被SVM模型错误分类的样本
 # print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test_constant)))
+#
+# # subsection 检验训练集和测试集的分布是否一致（Kolmogorov-Smirnov检验）
+# # 如果p-value很小（通常小于0.05），则可以拒绝原假设，认为两个分布不一致，p-value越大说明特征分布的一致性越高
+#
+# from scipy.stats import ks_2samp
+#
+# # 选择要比较的特征
+# for feature_index in range(X_train_copy.shape[1]):
+#     feature_train = X_train_copy[:, feature_index]
+#     feature_test = X_test_constant[:, feature_index]
+#     ks_statistic, p_value = ks_2samp(feature_train, feature_test)
+#     print(f"{feature_index}-th feature's KS Statistic: {ks_statistic}, p-value: {p_value}")
+#
+# # 选择要比较的标签
+# label_train = y_train
+# label_test = y_test_constant
+# ks_statistic, p_value = ks_2samp(label_train, label_test)
+# print(f"label's KS Statistic: {ks_statistic}, p-value: {p_value}")
 
 # section 方案三：仅删除X_train_copy中需要修复的元组，需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
 
@@ -494,3 +531,42 @@ print("加噪标签修复后，测试样本中被SVM模型错误分类的样本�
 # 整体数据集D中被SVM模型错误分类的样本
 print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test_constant)))
+
+# subsection 检验训练集和测试集的分布是否一致（Kolmogorov-Smirnov检验）
+# 如果p-value很小（通常小于0.05），则可以拒绝原假设，认为两个分布不一致，p-value越大说明特征分布的一致性越高
+
+from scipy.stats import ks_2samp
+
+# 选择要比较的特征
+for feature_index in range(X_train_copy.shape[1]):
+    feature_train = X_train_copy[:, feature_index]
+    feature_test = X_test_constant[:, feature_index]
+    ks_statistic, p_value = ks_2samp(feature_train, feature_test)
+    print(f"{feature_index}-th feature's KS Statistic: {ks_statistic}, p-value: {p_value}")
+
+# 选择要比较的标签
+label_train = y_train
+label_test = y_test_constant
+ks_statistic, p_value = ks_2samp(label_train, label_test)
+print(f"label's KS Statistic: {ks_statistic}, p-value: {p_value}")
+
+# 使用PCA降维可视化
+
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# 使用PCA降维到2D
+pca = PCA(n_components=2)
+X_train_pca = pca.fit_transform(X_train_copy)
+X_test_pca = pca.transform(X_test_constant)
+
+plt.figure(figsize=(12, 6))
+
+plt.scatter(X_train_pca[:, 0], X_train_pca[:, 1], label='Train', alpha=0.5)
+plt.scatter(X_test_pca[:, 0], X_test_pca[:, 1], label='Test', alpha=0.5)
+plt.title('PCA of Train and Test Data')
+plt.xlabel('PC1')
+plt.ylabel('PC2')
+plt.legend()
+
+plt.show()
