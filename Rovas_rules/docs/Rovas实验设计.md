@@ -20,6 +20,10 @@
 
 不同异常类型的数据集（将原始异常全部删除，抽取一定比例的剩余值，转化为不同类型异常值，使用这部分异常值替换采样的正常值，参考ADbench中的实现）
 
+#### **已选用的数据集如下**（加粗）：
+
+![b4637c02b6e7aa32b62ba787b4ae0b11](E:\微信文件\WeChat Files\wxid_i6ju2wsxhqkt22\FileStorage\Fav\Temp\fe344022\res\b4637c02b6e7aa32b62ba787b4ae0b11.jpg)
+
 ### 1.2 实验基准算法
 
 无监督算法（基于距离的，基于密度的，基于统计的，基于模型的，基于学习的（偏向深度和主动学习）的）
@@ -29,6 +33,30 @@
 监督算法（基于深度的开源算法）
 
 集成算法（基于bagging/boosting等）
+
+#### 已选用的基准如下：
+
+> 无监督统计方法：ECOD、COPOD、OCSVM、AKDE(add)、HBOS(add)
+>
+> 无监督基于距离的方法：LOF、COF、SOD、HBOS、RBRP(add)、LDOF(add)、RBDA(add)
+>
+> 无监督基于密度的方法：CBLOF(add)、LDCOF(add)、LOCI(add)、INFLO(add)、LOF(add)、COF(add)
+>
+> 无监督集成方法：LODA、IForest、BORE(add)、HeDES(add)、DCSO(add)、LSCP(add)
+>
+> 无监督基于角度的方法：FastABOD(add)
+>
+> 无监督主动学习方法：GLAD(add)
+>
+> 无监督子空间学习方法：SOD(add)
+>
+> 无监督深度方法：DeepSVDD、RDP(add)、RCA(add)、GOAD(add)、NeuTral(add)、ICL(add,2022)、DIF(add,2023)、SLAD(add,2023)、DAGMM
+>
+> 弱监督深度方法：GANomally、DeepSAD、REPEN、DevNet、PReNet(2023)、FeaWAD(add)、RoSAS(add)、XGBOD(add)
+>
+> 监督深度方法：LGB(add)、CatB(add)
+>
+> 监督深度集成方法：XGBoost（add）
 
 ### 1.3 实验评测指标
 
