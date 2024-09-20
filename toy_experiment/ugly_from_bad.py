@@ -6,6 +6,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import numpy as np
 from sklearn import svm
+from sklearn.preprocessing import OneHotEncoder
+from scipy.special import softmax
 
 epochs = 1
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -55,21 +57,40 @@ wrong_classified_indices = np.where(y_test != svm_model.predict(X_test))[0]
 print("测试集中分类错误的样本数量：", len(wrong_classified_indices))
 
 # SECTION 使用sklearn库中的hinge损失函数
+
+# choice 自定义计算hinge损失
+# decision_values = svm_model.decision_function(X_test)
+# y_pred = np.argmax(decision_values, axis=1)
+# # 计算每个样本的hinge损失
+# num_samples = X_test.shape[0]
+# num_classes = svm_model.classes_.shape[0]
+# hinge_losses = np.zeros((num_samples, num_classes))
+# hinge_loss = np.zeros(num_samples)
+# for i in range(num_samples):
+#     correct_class = int(y_test[i])
+#     for j in range(num_classes):
+#         if j != correct_class:
+#             loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
+#             hinge_losses[i, j] = loss_j
+#     hinge_loss[i] = np.max(hinge_losses[i])
+# bad_samples = np.where(hinge_loss > 1)[0]
+# # 测试样本中的bad outliers索引
+# bad_outliers_index = np.intersect1d(test_outliers_index, bad_samples)
+# print("检测出的outliers中bad outliers的数量：", len(bad_outliers_index))
+
+# choice 计算交叉熵损失
 decision_values = svm_model.decision_function(X_test)
-y_pred = np.argmax(decision_values, axis=1)
-# 计算每个样本的hinge损失
-num_samples = X_test.shape[0]
-num_classes = svm_model.classes_.shape[0]
-hinge_losses = np.zeros((num_samples, num_classes))
-hinge_loss = np.zeros(num_samples)
-for i in range(num_samples):
-    correct_class = int(y_pred[i])
-    for j in range(num_classes):
-        if j != correct_class:
-            loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
-            hinge_losses[i, j] = loss_j
-    hinge_loss[i] = np.max(hinge_losses[i])
-bad_samples = np.where(hinge_loss > 1)[0]
+# 应用 Softmax 函数
+y_pred = softmax(decision_values, axis=1)
+# 创建 OneHotEncoder 实例
+encoder = OneHotEncoder(sparse=False)
+# 拟合并转换 y_test
+y_true = encoder.fit_transform(y_test.reshape(-1, 1))
+# 计算每个样本的损失
+loss_per_sample = -np.sum(y_true * np.log(y_pred + 1e-12), axis=1)
+# 计算测试集平均多分类交叉熵损失
+average_loss = -np.mean(np.sum(y_true * np.log(y_pred + 1e-12), axis=1))
+bad_samples = np.where(loss_per_sample > average_loss)[0]
 # 测试样本中的bad outliers索引
 bad_outliers_index = np.intersect1d(test_outliers_index, bad_samples)
 print("检测出的outliers中bad outliers的数量：", len(bad_outliers_index))
@@ -80,4 +101,4 @@ for i in test_outliers_index:
     true_label = y_test[i]
     if true_label != test_label_pred[i]:
         wrong_classify_indices.append(i)
-print("检测出的outliers中被SVM分类器误分类的数量：", len(wrong_classify_indices))
+print("检测出的outliers中被SVM分类器误分类的数量(ugly outliers的数量)：", len(wrong_classify_indices))
