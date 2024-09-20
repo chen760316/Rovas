@@ -25,14 +25,14 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理
 
 # choice drybean数据集
-file_path = "../../UCI_datasets/dry+bean+dataset/DryBeanDataset/Dry_Bean_Dataset.xlsx"
-data = pd.read_excel(file_path)
-enc = LabelEncoder()
-# 原始数据集D对应的Dataframe
-data['Class'] = enc.fit_transform(data['Class'])
-X = data.values[:, :-1]
-y = data.values[:, -1]
-categorical_features = [0, 6]
+# file_path = "../../UCI_datasets/dry+bean+dataset/DryBeanDataset/Dry_Bean_Dataset.xlsx"
+# data = pd.read_excel(file_path)
+# enc = LabelEncoder()
+# # 原始数据集D对应的Dataframe
+# data['Class'] = enc.fit_transform(data['Class'])
+# X = data.values[:, :-1]
+# y = data.values[:, -1]
+# categorical_features = [0, 6]
 
 # choice obesity数据集
 # file_path = "../../kaggle_datasets/Obesity_prediction/obesity_data.csv"
@@ -69,16 +69,16 @@ categorical_features = [0, 6]
 # categorical_features = []
 
 # choice apple_quality数据集（使用SVM的默认模型，方差确定重要特征，修复特征中的异常最有效）
-# file_path = "../../kaggle_datasets/Apple_Quality/apple_quality.csv"
-# data = pd.read_csv(file_path)
-# # 删除id列
-# data = data.drop(data.columns[0], axis=1)
-# enc = LabelEncoder()
-# # 原始数据集D对应的Dataframe
-# data['Quality'] = enc.fit_transform(data['Quality'])
-# categorical_features = []
-# X = data.values[:, :-1]
-# y = data.values[:, -1]
+file_path = "../../kaggle_datasets/Apple_Quality/apple_quality.csv"
+data = pd.read_csv(file_path)
+# 删除id列
+data = data.drop(data.columns[0], axis=1)
+enc = LabelEncoder()
+# 原始数据集D对应的Dataframe
+data['Quality'] = enc.fit_transform(data['Quality'])
+categorical_features = []
+X = data.values[:, :-1]
+y = data.values[:, -1]
 
 # choice balita数据集 (使用SVM的默认模型，方差确定重要特征。特征数越少，修复特征中异常效果越好，可以考虑特征数较少的数据集)
 # file_path = "../../kaggle_datasets/balita/data_balita.csv"
