@@ -38,24 +38,25 @@ random_state = 42
 # X = StandardScaler().fit_transform(X)
 # 记录原始索引
 
-# file_path = "../UCI_datasets/dry+bean+dataset/DryBeanDataset/Dry_Bean_Dataset.xlsx"
-# data = pd.read_excel(file_path)
+file_path = "../UCI_datasets/dry+bean+dataset/DryBeanDataset/Dry_Bean_Dataset.xlsx"
+data = pd.read_excel(file_path)
+enc = LabelEncoder()
+# 原始数据集D对应的Dataframe
+data['Class'] = enc.fit_transform(data['Class'])
+X = data.values[:, :-1]
+y = data.values[:, -1]
+
+# file_path = "../kaggle_datasets/Apple_Quality/apple_quality.csv"
+# data = pd.read_csv(file_path)
+# # 删除id列
+# data = data.drop(data.columns[0], axis=1)
 # enc = LabelEncoder()
 # # 原始数据集D对应的Dataframe
-# data['Class'] = enc.fit_transform(data['Class'])
+# data['Quality'] = enc.fit_transform(data['Quality'])
+# categorical_features = []
 # X = data.values[:, :-1]
 # y = data.values[:, -1]
 
-file_path = "../kaggle_datasets/Apple_Quality/apple_quality.csv"
-data = pd.read_csv(file_path)
-# 删除id列
-data = data.drop(data.columns[0], axis=1)
-enc = LabelEncoder()
-# 原始数据集D对应的Dataframe
-data['Quality'] = enc.fit_transform(data['Quality'])
-categorical_features = []
-X = data.values[:, :-1]
-y = data.values[:, -1]
 X = StandardScaler().fit_transform(X)
 original_indices = np.arange(len(X))
 X_train, X_test, y_train, y_test, train_indices, test_indices = train_test_split(X, y, original_indices, test_size=0.3, random_state=42)

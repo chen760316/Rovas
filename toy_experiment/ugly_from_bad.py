@@ -15,17 +15,37 @@ n_trans = 64
 random_state = 42
 
 # SECTION 数据预处理
-file_path = "../kaggle_datasets/balita/data_balita.csv"
-data = pd.read_csv(file_path)
-# 从 data 中随机抽取 10% 的样本
-data = data.sample(frac=0.1, random_state=42)
+# file_path = "../kaggle_datasets/balita/data_balita.csv"
+# data = pd.read_csv(file_path)
+# # 从 data 中随机抽取 10% 的样本
+# data = data.sample(frac=0.1, random_state=42)
+# enc = LabelEncoder()
+# # 原始数据集D对应的Dataframe
+# data['Nutrition_Status'] = enc.fit_transform(data['Nutrition_Status'])
+# data['Gender'] = enc.fit_transform(data['Gender'])
+# categorical_features = [0, 1]
+# X = data.values[:, :-1]
+# y = data.values[:, -1]
+
+# file_path = "../kaggle_datasets/Apple_Quality/apple_quality.csv"
+# data = pd.read_csv(file_path)
+# # 删除id列
+# data = data.drop(data.columns[0], axis=1)
+# enc = LabelEncoder()
+# # 原始数据集D对应的Dataframe
+# data['Quality'] = enc.fit_transform(data['Quality'])
+# categorical_features = []
+# X = data.values[:, :-1]
+# y = data.values[:, -1]
+
+file_path = "../UCI_datasets/dry+bean+dataset/DryBeanDataset/Dry_Bean_Dataset.xlsx"
+data = pd.read_excel(file_path)
 enc = LabelEncoder()
 # 原始数据集D对应的Dataframe
-data['Nutrition_Status'] = enc.fit_transform(data['Nutrition_Status'])
-data['Gender'] = enc.fit_transform(data['Gender'])
-categorical_features = [0, 1]
+data['Class'] = enc.fit_transform(data['Class'])
 X = data.values[:, :-1]
 y = data.values[:, -1]
+
 X = StandardScaler().fit_transform(X)
 # 记录原始索引
 original_indices = np.arange(len(X))
@@ -91,9 +111,27 @@ loss_per_sample = -np.sum(y_true * np.log(y_pred + 1e-12), axis=1)
 # 计算测试集平均多分类交叉熵损失
 average_loss = -np.mean(np.sum(y_true * np.log(y_pred + 1e-12), axis=1))
 bad_samples = np.where(loss_per_sample > average_loss)[0]
+good_samples = np.where(loss_per_sample <= average_loss)[0]
 # 测试样本中的bad outliers索引
 bad_outliers_index = np.intersect1d(test_outliers_index, bad_samples)
 print("检测出的outliers中bad outliers的数量：", len(bad_outliers_index))
+# 测试样本中的good outliers索引
+good_outliers_index = np.intersect1d(test_outliers_index, good_samples)
+print("检测出的outliers中good outliers的数量：", len(good_outliers_index))
+# good outliers中分错的比例
+good_wrong_indies = []
+for i in good_outliers_index:
+    true_label = y_test[i]
+    if true_label != test_label_pred[i]:
+        good_wrong_indies.append(i)
+print("good outliers中样本分错的比例：", len(good_wrong_indies)/len(good_outliers_index))
+# bad outliers中分错的比例
+bad_wrong_indies = []
+for i in bad_outliers_index:
+    true_label = y_test[i]
+    if true_label != test_label_pred[i]:
+        bad_wrong_indies.append(i)
+print("bad outliers中样本分错的比例：", len(bad_wrong_indies)/len(bad_outliers_index))
 
 # section 测试集中离群值中被SVM分类器误分类的数量
 wrong_classify_indices = []
