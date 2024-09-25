@@ -58,7 +58,7 @@ print(f"较少标签占据的比例: {proportion:.4f}")
 min_count_index = np.argmin(counts)  # 找到最小数量的索引
 min_label = unique_values[min_count_index]  # 对应的标签值
 
-# section 数据特征缩放
+# section 数据特征缩放和数据加噪
 
 # 对不同维度进行标准化
 X = StandardScaler().fit_transform(X)
@@ -556,7 +556,7 @@ print("借助knn修复需要修复的样本后，完整数据集D中被SVM模型
 # print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
-# # section 方案六：训练机器学习模型(随机森林模型)，修复特征值
+# # section 方案六：训练机器学习模型(随机森林模型)，修复特征值（修复时间很久，慎用）
 #
 # from sklearn.ensemble import RandomForestRegressor
 # from sklearn.ensemble import RandomForestClassifier
