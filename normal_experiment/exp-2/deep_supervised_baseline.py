@@ -136,12 +136,12 @@ test_positive_indices = np.where(y_test == min_label)[0]
 y_semi_test[test_positive_indices] = 1
 
 # choice DevNet异常检测器
-out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-                          random_state=random_state)
-out_clf.fit(X_train, y_semi)
-out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-                          random_state=random_state)
-out_clf_noise.fit(X_train_copy, y_semi)
+# out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf.fit(X_train, y_semi)
+# out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y_semi)
 
 # choice DeepSAD异常检测器
 # out_clf = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
@@ -160,10 +160,10 @@ out_clf_noise.fit(X_train_copy, y_semi)
 # out_clf_noise.fit(X_train_copy, y_semi)
 
 # choice PReNeT异常检测器
-# out_clf = PReNet(epochs=epochs, device=device, random_state=random_state)
-# out_clf.fit(X_train, y_semi)
-# out_clf_noise = PReNet(epochs=epochs, device=device, random_state=random_state)
-# out_clf_noise.fit(X_train_copy, y_semi)
+out_clf = PReNet(epochs=epochs, device=device, random_state=random_state)
+out_clf.fit(X_train, y_semi)
+out_clf_noise = PReNet(epochs=epochs, device=device, random_state=random_state)
+out_clf_noise.fit(X_train_copy, y_semi)
 
 # SECTION 借助异常检测器，在训练集上进行异常值检测。
 #  经过检验，加入高斯噪声会影响异常值判别

@@ -87,6 +87,7 @@ test_noise = np.intersect1d(test_indices, noise_indices)
 
 # section 找到有影响力的特征 M𝑐 (𝑅, 𝐴, M)
 # choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
+import re
 
 i = 16
 np.random.seed(1)
@@ -105,19 +106,25 @@ explainer = LimeTabularExplainer(X_train, feature_names=feature_names, class_nam
                                                    categorical_names=categorical_names, kernel_width=3)
 
 predict_fn = lambda x: svm_model.predict_proba(x)
-exp = explainer.explain_instance(X_train[i], predict_fn, num_features=6)
+exp = explainer.explain_instance(X_train[i], predict_fn, num_features=len(feature_names)//2)
 # 获取最具影响力的特征及其权重
 top_features = exp.as_list()
-important_features = []
-for feature_set in top_features:
-    feature_long = feature_set[0]
-    for feature in feature_names:
-        if set(feature).issubset(set(feature_long)):
-            important_features.append(feature)
-            break
-
-top_k_indices = [feature_names.index(feature_name) for feature_name in important_features]
+top_feature_names = [re.search(r'([a-zA-Z_]\w*)', feature[0]).group(0).strip() for feature in top_features]
+top_k_indices = [feature_names.index(name) for name in top_feature_names]
 print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices))
+
+# # 获取最具影响力的特征及其权重
+# top_features = exp.as_list()
+# important_features = []
+# for feature_set in top_features:
+#     feature_long = feature_set[0]
+#     for feature in feature_names:
+#         if set(feature).issubset(set(feature_long)):
+#             important_features.append(feature)
+#             break
+#
+# top_k_indices = [feature_names.index(feature_name) for feature_name in important_features]
+# print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices))
 
 # section 找到loss(M, D, 𝑡) > 𝜆的元组
 
