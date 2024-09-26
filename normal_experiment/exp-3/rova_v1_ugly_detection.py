@@ -204,6 +204,7 @@ for column_indice in top_k_indices:
 outlier_tuple_set = set()
 for value in outlier_feature_indices.values():
     outlier_tuple_set.update(value)
+outlier_tuple_set.update(bad_samples)
 X_copy_repair_indices = list(outlier_tuple_set)
 X_copy_repair = X_copy[X_copy_repair_indices]
 y_repair = y[X_copy_repair_indices]
@@ -264,6 +265,6 @@ print("被误分类的样本数量：", len(wrong_classify_indices))
 
 # section 检测ugly outliers的召回率
 # ugly_found_by_detector = list(set(X_copy_repair_indices) & set(wrong_classify_indices))
-ugly_found_by_detector = list(set(bad_samples) & set(wrong_classify_indices))
+ugly_found_by_detector = list(set(X_copy_repair_indices) & set(wrong_classify_indices))
 print("召回的ugly outliers的数量：", len(ugly_found_by_detector))
 print("ugly outliers的召回率为：", len(ugly_found_by_detector)/len(wrong_classify_indices))
