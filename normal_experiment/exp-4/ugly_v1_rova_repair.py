@@ -14,6 +14,10 @@ from sklearn import svm
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from lime.lime_tabular import LimeTabularExplainer
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import precision_recall_curve, auc
+from sklearn.metrics import average_precision_score
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -229,6 +233,53 @@ print("加噪测试样本中被SVM模型错误分类的样本占总测试样本�
 print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
+# subsection 用多种指标评价加噪数据集中SVM的预测效果
+
+"""Precision/Recall/F1指标"""
+print("*" * 100)
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+y_test_pred = test_label_pred_noise
+print("SVM模型在加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+
+"""ROC-AUC指标"""
+y_test_prob = svm_model.predict_proba(X_test)
+roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+
+"""PR AUC指标(不支持多分类)"""
+# # 计算预测概率
+# y_scores = svm_model_noise.predict_proba(X_test)
+# # 遍历每个类别
+# pr_scores = []
+# for i in range(y_scores.shape[1]):
+#     precision, recall, _ = precision_recall_curve(y_test, y_scores[:, i])
+#     pr_auc = auc(recall, precision)
+#     pr_scores.append(pr_auc)
+#     print(f"SVM模型在修复测试集中的PR AUC 分数（类 {i}）: {pr_auc}")
+# # 如果需要计算所有类的宏平均 PR 分数
+# macro_pr_score = sum(pr_scores) / len(pr_scores)
+# print("SVM模型在修复测试集中的宏平均AP分数:", macro_pr_score)
+
+"""AP指标(不支持多分类)"""
+# # 计算预测概率
+# y_scores = svm_model_noise.predict_proba(X_test)
+# # 计算每个类别的 Average Precision
+# ap_scores = []
+# for i in range(y_scores.shape[1]):
+#     ap_score = average_precision_score(y_test, y_scores[:, i])
+#     ap_scores.append(ap_score)
+#     print(f"SVM模型在修复测试集中的AP分数（类 {i}）: {ap_score}")
+#
+# # 如果需要计算所有类的宏平均 AP 分数
+# macro_ap_score = sum(ap_scores) / len(ap_scores)
+# print("SVM模型在修复测试集中的宏平均AP分数:", macro_ap_score)
+
 # section 确定数据中需要修复的元组
 
 outlier_tuple_set = set()
@@ -281,6 +332,41 @@ print("加噪标签修复后，测试样本中被SVM模型错误分类的样本�
 # 整体数据集D中被SVM模型错误分类的样本
 print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# subsection 用多种指标评价SVM在修复后的数据上的预测效果
+
+"""Precision/Recall/F1指标"""
+print("*" * 100)
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+
+print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+
+"""ROC-AUC指标"""
+y_test_prob = svm_repair.predict_proba(X_test)
+roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
+
+"""PR AUC指标(不支持多分类)"""
+# # 计算预测概率
+# y_scores = svm_repair.predict_proba(X_test)
+# # 计算 Precision 和 Recall
+# precision, recall, _ = precision_recall_curve(y_test, y_scores)
+# # 计算 PR AUC
+# pr_auc = auc(recall, precision)
+# print("SVM模型在修复测试集中的PR AUC 分数:", pr_auc)
+#
+"""AP指标(不支持多分类)"""
+# # 计算预测概率
+# y_scores = svm_repair.predict_proba(X_test)
+# # 计算 Average Precision
+# ap_score = average_precision_score(y_test, y_scores)
+# print("SVM模型在修复测试集中的AP分数:", ap_score)
 
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）

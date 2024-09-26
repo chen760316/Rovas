@@ -217,7 +217,8 @@ print("半监督异常检测器在原始测试集中的分类F1分数：" + str(
 
 """ROC-AUC指标"""
 print("*" * 100)
-roc_auc_test = roc_auc_score(y_test, test_pred_labels, multi_class='ovr')  # 一对多方式
+y_test_prob = 1 / (1 + np.exp(-test_scores))
+roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
 print("半监督异常检测器在原始测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标"""
@@ -288,7 +289,8 @@ print("半监督异常检测器在加噪测试集中的分类F1分数：" + str(
 
 """ROC-AUC指标"""
 print("*" * 100)
-roc_auc_test = roc_auc_score(y_test, test_pred_labels_noise, multi_class='ovr')  # 一对多方式
+y_test_prob = 1 / (1 + np.exp(-test_scores_noise))
+roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
 print("半监督异常检测器在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标"""
