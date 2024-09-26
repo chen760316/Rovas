@@ -29,11 +29,17 @@ np.set_printoptions(threshold=np.inf)
 file_path = "../datasets/multi_class/drybean.xlsx"
 data = pd.read_excel(file_path)
 enc = LabelEncoder()
+label_name = data.columns[-1]
 # 原始数据集D对应的Dataframe
-data['Class'] = enc.fit_transform(data['Class'])
+data[label_name] = enc.fit_transform(data[label_name])
 X = data.values[:, :-1]
 y = data.values[:, -1]
-categorical_features = [0, 6]
+
+# 找到分类特征的列名
+categorical_columns = data.select_dtypes(exclude=['float']).columns[:-1]
+# 获取分类特征对应的索引
+categorical_features = [data.columns.get_loc(col) for col in categorical_columns]
+
 all_columns = data.columns.values.tolist()
 feature_names = all_columns[:-1]
 class_name = all_columns[-1]
@@ -44,7 +50,6 @@ unique_values, counts = np.unique(y, return_counts=True)
 # 输出结果
 for value, count in zip(unique_values, counts):
     print(f"标签: {value}, 数量: {count}")
-categorical_features = [0, 6]
 
 # 找到最小标签的数量
 min_count = counts.min()
@@ -89,7 +94,7 @@ test_noise = np.intersect1d(test_indices, noise_indices)
 # choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
 import re
 
-i = 16
+i = len(feature_names)
 np.random.seed(1)
 categorical_names = {}
 svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)

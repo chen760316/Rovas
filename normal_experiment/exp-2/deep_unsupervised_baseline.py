@@ -107,16 +107,16 @@ n_trans = 64
 random_state = 42
 
 # choice GOAD异常检测器
-# out_clf = GOAD(epochs=epochs, device=device, n_trans=n_trans)
-# out_clf.fit(X_train, y=None)
-# out_clf_noise = GOAD(epochs=epochs, device=device, n_trans=n_trans)
-# out_clf_noise.fit(X_train_copy, y=None)
+out_clf = GOAD(epochs=epochs, device=device, n_trans=n_trans)
+out_clf.fit(X_train, y=None)
+out_clf_noise = GOAD(epochs=epochs, device=device, n_trans=n_trans)
+out_clf_noise.fit(X_train_copy, y=None)
 
 # choice DeepSVDD异常检测器
-out_clf = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
-out_clf.fit(X_train, y=None)
-out_clf_noise = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
-out_clf_noise.fit(X_train_copy, y=None)
+# out_clf = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
+# out_clf.fit(X_train, y=None)
+# out_clf_noise = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y=None)
 
 # choice RCA异常检测器
 # out_clf = RCA(epochs=epochs, device=device, act='LeakyReLU')

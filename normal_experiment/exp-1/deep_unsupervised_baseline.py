@@ -34,7 +34,11 @@ enc = LabelEncoder()
 data['Class'] = enc.fit_transform(data['Class'])
 X = data.values[:, :-1]
 y = data.values[:, -1]
-categorical_features = [0, 6]
+
+# 找到分类特征的列名
+categorical_columns = data.select_dtypes(exclude=['float']).columns[:-1]
+# 获取分类特征对应的索引
+categorical_features = [data.columns.get_loc(col) for col in categorical_columns]
 
 # 统计不同值及其数量
 unique_values, counts = np.unique(y, return_counts=True)
@@ -42,7 +46,6 @@ unique_values, counts = np.unique(y, return_counts=True)
 # 输出结果
 for value, count in zip(unique_values, counts):
     print(f"标签: {value}, 数量: {count}")
-categorical_features = [0, 6]
 
 # 找到最小标签的数量
 min_count = counts.min()
@@ -262,7 +265,8 @@ test_union = np.union1d(test_outliers_noise, test_wrong_clf_noise)
 
 # 加噪数据集D'上需要修复的值
 # 需要修复的特征和标签值
-X_copy_repair_indices = np.union1d(outliers_noise, wrong_clf_noise)
+X_copy_repair_indices = outliers_noise  # 传统异常检测器仅能利用异常检测指标
+# X_copy_repair_indices = np.union1d(outliers_noise, wrong_clf_noise)
 
 # choice 不利用损失函数
 # X_copy_repair_indices = outliers_noise
@@ -282,9 +286,8 @@ y_inners = y[rows_to_keep]
 # choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
 
 # 特征数取4或6
-i = 16
+i = len(feature_names)
 np.random.seed(1)
-categorical_features = [0, 6]
 categorical_names = {}
 for feature in categorical_features:
     le = LabelEncoder()
@@ -309,41 +312,41 @@ for feature_set in top_features:
 top_k_indices = [feature_names.index(feature_name) for feature_name in important_features]
 print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices))
 
-# # section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
-# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
-#
-# # subsection 尝试修复异常数据的标签
-#
-# knn = KNeighborsClassifier(n_neighbors=3)
-# knn.fit(X_copy_inners, y_inners)
-#
-# # 预测异常值
-# y_pred = knn.predict(X_copy_repair)
-#
-# # 替换异常值
-# y[X_copy_repair_indices] = y_pred
-# y_train = y[train_indices]
-# y_test = y[test_indices]
-#
-# # subsection 重新在修复后的数据上训练SVM模型
-#
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
-# svm_repair.fit(X_train_copy, y_train)
-# y_train_pred = svm_repair.predict(X_train_copy)
-# y_test_pred = svm_repair.predict(X_test_copy)
-#
-# print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
-# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-#
-# # 测试样本中被SVM模型错误分类的样本
-# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-#
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
-#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+# section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
+#  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
+
+# subsection 尝试修复异常数据的标签
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_copy_inners, y_inners)
+
+# 预测异常值
+y_pred = knn.predict(X_copy_repair)
+
+# 替换异常值
+y[X_copy_repair_indices] = y_pred
+y_train = y[train_indices]
+y_test = y[test_indices]
+
+# subsection 重新在修复后的数据上训练SVM模型
+
+svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_repair.fit(X_train_copy, y_train)
+y_train_pred = svm_repair.predict(X_train_copy)
+y_test_pred = svm_repair.predict(X_test_copy)
+
+print("*" * 100)
+# 训练样本中被SVM模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
+print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+
+# 测试样本中被SVM模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
+print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+
+# 整体数据集D中被SVM模型错误分类的样本
+print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）
 # #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）

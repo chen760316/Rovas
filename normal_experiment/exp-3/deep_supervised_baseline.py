@@ -1,5 +1,5 @@
 """
-(半) 监督离群值检测算法在传统异常检测领域的效果
+(半) 监督离群值检测算法对ugly outliers的检测能力
 """
 from collections import Counter
 
@@ -23,6 +23,8 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.metrics import average_precision_score
+from sklearn.preprocessing import OneHotEncoder
+from scipy.special import softmax
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -31,9 +33,9 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理
 
-# file_path = "../datasets/real_outlier/Cardiotocography.csv"
+file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
-file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/optdigits.csv"
 data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行
@@ -105,7 +107,7 @@ train_noise = np.intersect1d(train_indices, noise_indices)
 # 测试集中添加了高斯噪声的样本在原始数据集D中的索引
 test_noise = np.intersect1d(test_indices, noise_indices)
 
-# SECTION M𝑜 (𝑡, D) 针对元组异常的(弱)监督异常检测器
+# section 选择监督异常检测器
 
 # subsection 确定参数以及少数标签的索引
 
@@ -117,8 +119,6 @@ hidden_dims = 20
 epoch_steps = 20
 batch_size = 256
 lr = 1e-5
-
-# section 选择监督异常检测器
 
 # 设置弱监督训练样本
 # 找到所有标签为 1 的样本索引
@@ -203,40 +203,16 @@ print("测试集中的异常值比例：", len(test_outliers_index)/len(X_test))
 print("*" * 100)
 print("半监督异常检测器在原始测试集中的分类准确度：" + str(accuracy_score(y_test, test_pred_labels)))
 
-"""Precision/Recall/F1指标"""
-print("*" * 100)
+# subsection 从全部数据中检测出异常值索引
 
-# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
-# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
-# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
-# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
-
-print("半监督异常检测器在原始测试集中的分类精确度：" + str(precision_score(y_test, test_pred_labels, average='weighted')))
-print("半监督异常检测器在原始测试集中的分类召回率：" + str(recall_score(y_test, test_pred_labels, average='weighted')))
-print("半监督异常检测器在原始测试集中的分类F1分数：" + str(f1_score(y_test, test_pred_labels, average='weighted')))
-
-"""ROC-AUC指标"""
-print("*" * 100)
-roc_auc_test = roc_auc_score(y_test, test_pred_labels, multi_class='ovr')  # 一对多方式
-print("半监督异常检测器在原始测试集中的ROC-AUC分数：" + str(roc_auc_test))
-
-"""PR AUC指标"""
-print("*" * 100)
-# 计算预测概率
-y_scores = 1 / (1 + np.exp(-test_scores))
-# 计算 Precision 和 Recall
-precision, recall, _ = precision_recall_curve(y_test, y_scores)
-# 计算 PR AUC
-pr_auc = auc(recall, precision)
-print("半监督异常检测器在原始测试集中的PR AUC 分数:", pr_auc)
-
-"""AP指标"""
-print("*" * 100)
-# 计算预测概率
-y_scores = 1 / (1 + np.exp(-test_scores))
-# 计算 Average Precision
-ap_score = average_precision_score(y_test, y_scores)
-print("无监督异常检测器在原始测试集中的AP分数:", ap_score)
+print("*"*100)
+scorese = out_clf.decision_function(X)
+pred_labels, confidence = out_clf.predict(X, return_confidence=True)
+outliers_index = []
+for i in range(len(X)):
+    if pred_labels[i] == 1:
+        outliers_index.append(i)
+print("全部数据中的异常值数量：", len(outliers_index))
 
 # section 从加噪数据集的训练集和测试集中检测出的异常值
 
@@ -270,41 +246,85 @@ print("加噪测试集中异常值索引：", test_outliers_index_noise)
 print("加噪测试集中的异常值数量：", len(test_outliers_index_noise))
 print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/len(X_test_copy))
 
-"""Accuracy指标"""
+# subsection 从全部数据中检测出异常值索引
+
+print("*"*100)
+scores_noise = out_clf_noise.decision_function(X_copy)
+pred_labels_noise, confidence_noise = out_clf_noise.predict(X_copy, return_confidence=True)
+outliers_index_noise = []
+for i in range(len(X_copy)):
+    if pred_labels_noise[i] == 1:
+        outliers_index_noise.append(i)
+print("加噪数据中的异常值数量：", len(outliers_index_noise))
+
+# section 训练下游任务的SVM模型
+
+# subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
+
 print("*" * 100)
-print("无监督异常检测器在加噪测试集中的分类准确度：" + str(accuracy_score(y_test, test_pred_labels_noise)))
+svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model.fit(X_train, y_train)
+train_label_pred = svm_model.predict(X_train)
 
-"""Precision/Recall/F1指标"""
+# 训练样本中被SVM模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != svm_model.predict(X_train))[0]
+print("训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+
+# 测试样本中被SVM模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != svm_model.predict(X_test))[0]
+print("测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+
+# 整体数据集D中被SVM模型错误分类的样本
+print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
+
 print("*" * 100)
+svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model_noise.fit(X_train_copy, y_train)
+train_label_pred_noise = svm_model_noise.predict(X_train_copy)
 
-# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
-# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
-# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
-# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+# 加噪训练样本中被SVM模型错误分类的样本
+wrong_classified_train_indices_noise = np.where(y_train != svm_model_noise.predict(X_train_copy))[0]
+print("加噪训练样本中被SVM模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
 
-print("半监督异常检测器在加噪测试集中的分类精确度：" + str(precision_score(y_test, test_pred_labels_noise, average='weighted')))
-print("半监督异常检测器在加噪测试集中的分类召回率：" + str(recall_score(y_test, test_pred_labels_noise, average='weighted')))
-print("半监督异常检测器在加噪测试集中的分类F1分数：" + str(f1_score(y_test, test_pred_labels_noise, average='weighted')))
+# 加噪测试样本中被SVM模型错误分类的样本
+wrong_classified_test_indices_noise = np.where(y_test != svm_model_noise.predict(X_test_copy))[0]
+print("加噪测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
 
-"""ROC-AUC指标"""
-print("*" * 100)
-roc_auc_test = roc_auc_score(y_test, test_pred_labels_noise, multi_class='ovr')  # 一对多方式
-print("半监督异常检测器在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# 整体加噪数据集D中被SVM模型错误分类的样本
+print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
-"""PR AUC指标"""
-print("*" * 100)
-# 计算预测概率
-y_scores = 1 / (1 + np.exp(-test_scores_noise))
-# 计算 Precision 和 Recall
-precision, recall, _ = precision_recall_curve(y_test, y_scores)
-# 计算 PR AUC
-pr_auc = auc(recall, precision)
-print("半监督异常检测器在加噪测试集中的PR AUC 分数:", pr_auc)
+# section 计算加噪数据中的交叉熵损失
 
-"""AP指标"""
-print("*" * 100)
-# 计算预测概率
-y_scores = 1 / (1 + np.exp(-test_scores_noise))
-# 计算 Average Precision
-ap_score = average_precision_score(y_test, y_scores)
-print("半监督异常检测器在加噪测试集中的AP分数:", ap_score)
+# 获取决策值
+decision_values = svm_model_noise.decision_function(X_copy)
+# 将决策值转换为适用于 Softmax 的二维数组
+decision_values_reshaped = decision_values.reshape(-1, 1)  # 变成 (n_samples, 1)
+# 应用 Softmax 函数（可以手动实现或使用 scipy）
+y_pred = softmax(np.hstack((decision_values_reshaped, -decision_values_reshaped)), axis=1)
+# 创建 OneHotEncoder 实例
+encoder = OneHotEncoder(sparse=False)
+# 拟合并转换 y_test
+y_true = encoder.fit_transform(y.reshape(-1, 1))
+# 计算每个样本的损失
+loss_per_sample = -np.sum(y_true * np.log(y_pred + 1e-12), axis=1)
+# 计算测试集平均多分类交叉熵损失
+average_loss = -np.mean(np.sum(y_true * np.log(y_pred + 1e-12), axis=1))
+bad_samples_noise = np.where(loss_per_sample > average_loss)[0]
+good_samples_noise = np.where(loss_per_sample <= average_loss)[0]
+print("损失不超过阈值的样本数量：", len(good_samples_noise))
+print("损失大于阈值的样本数量：", len(bad_samples_noise))
+
+# section 全部加噪数据中被SVM分类器误分类的数量
+label_pred = svm_model_noise.predict(X_copy)
+wrong_classify_indices = []
+for i in range(len(X_copy)):
+    if y[i] != label_pred[i]:
+        wrong_classify_indices.append(i)
+print("被误分类的样本数量：", len(wrong_classify_indices))
+
+# section 检测ugly outliers的召回率
+ugly_found_by_detector = list(set(outliers_index_noise) & set(wrong_classify_indices))
+print("召回的ugly outliers的数量：", len(ugly_found_by_detector))
+print("ugly outliers的召回率为：", len(ugly_found_by_detector)/len(wrong_classify_indices))

@@ -77,10 +77,8 @@ print(f"较少标签占据的比例: {proportion:.4f}")
 min_count_index = np.argmin(counts)  # 找到最小数量的索引
 min_label = unique_values[min_count_index]  # 对应的标签值
 
-# 定义分类数据类型
-categorical_dtypes = ['object', 'category', 'bool']
 # 找到分类特征的列名
-categorical_columns = data.select_dtypes(include=categorical_dtypes).columns
+categorical_columns = data.select_dtypes(exclude=['float']).columns[:-1]
 # 获取分类特征对应的索引
 categorical_features = [data.columns.get_loc(col) for col in categorical_columns]
 
@@ -284,9 +282,8 @@ print("完整数据集D中被SVM模型错误分类的样本占总完整数据的
 import re
 
 # 特征数取4或6
-i = 16
+i = len(feature_names)
 np.random.seed(1)
-categorical_features = [0, 6]
 categorical_names = {}
 
 for feature in categorical_features:

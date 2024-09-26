@@ -1,6 +1,6 @@
 """
 𝑅(𝑡) ∧ outlier(𝐷, 𝑅, 𝑡.𝐴, 𝜃) ∧ loss(M, D, 𝑡) > 𝜆 ∧ M𝑐 (𝑅, 𝐴,M) → ugly(𝑡)
-Rovas在传统异常检测领域检测数据中的异常值的效果
+Rovas对ugly outliers的检测能力
 """
 
 import pandas as pd
@@ -26,9 +26,9 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理
 
-# file_path = "../datasets/real_outlier/Cardiotocography.csv"
+file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
-file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/optdigits.csv"
 data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行
@@ -54,15 +54,13 @@ for column in non_numeric_columns:
 X = data.values[:, :-1]
 y = data.values[:, -1]
 
-all_columns = data.columns.values.tolist()
-feature_names = all_columns[:-1]
-class_name = all_columns[-1]
-
 # 统计不同值及其数量
 unique_values, counts = np.unique(y, return_counts=True)
+
 # 输出结果
 for value, count in zip(unique_values, counts):
     print(f"标签: {value}, 数量: {count}")
+
 # 找到最小标签的数量
 min_count = counts.min()
 total_count = counts.sum()
@@ -72,6 +70,10 @@ proportion = min_count / total_count
 print(f"较少标签占据的比例: {proportion:.4f}")
 min_count_index = np.argmin(counts)  # 找到最小数量的索引
 min_label = unique_values[min_count_index]  # 对应的标签值
+
+all_columns = data.columns.values.tolist()
+feature_names = all_columns[:-1]
+class_name = all_columns[-1]
 
 # 找到分类特征的列名
 categorical_columns = data.select_dtypes(exclude=['float']).columns[:-1]
@@ -98,10 +100,9 @@ X_copy[noise_indices] += np.random.normal(0, 1, (n_noise, X.shape[1]))
 # 从加噪数据中生成加噪训练数据和加噪测试数据
 X_train_copy = X_copy[train_indices]
 X_test_copy = X_copy[test_indices]
-feature_names = data.columns.values.tolist()
 combined_array = np.hstack((X_copy, y.reshape(-1, 1)))  # 将 y 重新调整为列向量并合并
 # 添加噪声后的数据集D'对应的Dataframe
-data_copy = pd.DataFrame(combined_array, columns=feature_names)
+data_copy = pd.DataFrame(combined_array, columns=all_columns)
 # 训练集中添加了高斯噪声的样本在原始数据集D中的索引
 train_noise = np.intersect1d(train_indices, noise_indices)
 # 测试集中添加了高斯噪声的样本在原始数据集D中的索引
@@ -137,26 +138,6 @@ print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices
 
 # section 找到loss(M, D, 𝑡) > 𝜆的元组
 
-# # choice 使用sklearn库中的hinge损失函数
-# decision_values = svm_model.decision_function(X_copy)
-# predicted_labels = np.argmax(decision_values, axis=1)
-# # 计算每个样本的hinge损失
-# num_samples = X_copy.shape[0]
-# num_classes = svm_model.classes_.shape[0]
-# hinge_losses = np.zeros((num_samples, num_classes))
-# hinge_loss = np.zeros(num_samples)
-# for i in range(num_samples):
-#     correct_class = int(y[i])
-#     for j in range(num_classes):
-#         if j != correct_class:
-#             loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
-#             hinge_losses[i, j] = loss_j
-#     hinge_loss[i] = np.max(hinge_losses[i])
-#
-# # 在所有加噪数据D中损失函数高于阈值的样本索引
-# ugly_outlier_candidates = np.where(hinge_loss > 1)[0]
-# # print("D中损失函数高于损失阈值的样本索引为：", ugly_outlier_candidates)
-
 # choice 使用交叉熵损失函数
 from sklearn.preprocessing import OneHotEncoder
 from scipy.special import softmax
@@ -169,8 +150,11 @@ decision_values_reshaped = decision_values.reshape(-1, 1)  # 变成 (n_samples, 
 y_pred = softmax(np.hstack((decision_values_reshaped, -decision_values_reshaped)), axis=1)
 # 创建 OneHotEncoder 实例
 encoder = OneHotEncoder(sparse=False)
-# 拟合并转换 y_test
-y_true = encoder.fit_transform(y.reshape(-1, 1))
+# 预测y_test的值，并与y_train组合成为y_ground
+y_test_pred = svm_model.predict(X_test_copy)
+y_ground = np.hstack((y_train, y_test_pred))
+# 对y_ground进行独热编码
+y_true = encoder.fit_transform(y_ground.reshape(-1, 1))
 # 计算每个样本的损失
 loss_per_sample = -np.sum(y_true * np.log(y_pred + 1e-12), axis=1)
 # 计算测试集平均多分类交叉熵损失
@@ -215,7 +199,7 @@ for column_indice in top_k_indices:
     outlier_feature_indices[column_indice] = intersection
 # print(outlier_feature_indices)
 
-# section 确定数据中需要修复的元组
+# section 确定数据中的ugly outliers
 
 outlier_tuple_set = set()
 for value in outlier_feature_indices.values():
@@ -232,61 +216,54 @@ rows_to_keep = np.setdiff1d(np.arange(X_copy.shape[0]), X_copy_repair_indices)
 X_copy_inners = X_copy[rows_to_keep]
 y_inners = y[rows_to_keep]
 
-# section 汇总加噪样本中检测到的outliers
+# section 训练下游任务的SVM模型
 
-y_pred = np.zeros_like(y)
-y_pred[X_copy_repair_indices] = 1
-y_train_pred = y_pred[train_indices]
-y_test_pred = y_pred[test_indices]
-# 统计不同值及其数量
-unique_values, counts = np.unique(y_test_pred, return_counts=True)
-# 输出结果
-for value, count in zip(unique_values, counts):
-    print(f"预测的测试集标签: {value}, 预测的标签数量: {count}")
-# 找到预测的最小标签的数量
-min_count = counts.min()
-total_count = counts.sum()
-# 计算预测的最少标签的比例
-proportion = min_count / total_count
-print(f"较少标签占据的比例: {proportion:.4f}")
+# subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
-# section 使用各种评价指标评价Rovas检测到的outliers
-
-"""Accuracy指标"""
 print("*" * 100)
-print("Rovas在加噪测试集中的分类准确度：" + str(accuracy_score(y_test, y_test_pred)))
+svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model.fit(X_train, y_train)
+train_label_pred = svm_model.predict(X_train)
 
-"""Precision/Recall/F1指标"""
+# 训练样本中被SVM模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != svm_model.predict(X_train))[0]
+print("训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+
+# 测试样本中被SVM模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != svm_model.predict(X_test))[0]
+print("测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+
+# 整体数据集D中被SVM模型错误分类的样本
+print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
+
 print("*" * 100)
+svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model_noise.fit(X_train_copy, y_train)
+train_label_pred_noise = svm_model_noise.predict(X_train_copy)
 
-# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
-# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
-# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
-# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+# 加噪训练样本中被SVM模型错误分类的样本
+wrong_classified_train_indices_noise = np.where(y_train != svm_model_noise.predict(X_train_copy))[0]
+print("加噪训练样本中被SVM模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
 
-print("Rovas在加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
-print("Rovas在加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-print("Rovas在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+# 加噪测试样本中被SVM模型错误分类的样本
+wrong_classified_test_indices_noise = np.where(y_test != svm_model_noise.predict(X_test_copy))[0]
+print("加噪测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
 
-"""ROC-AUC指标"""
-print("*" * 100)
-roc_auc_test = roc_auc_score(y_test, y_test_pred, multi_class='ovr')  # 一对多方式
-print("Rovas在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# 整体加噪数据集D中被SVM模型错误分类的样本
+print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
-# """PR AUC指标"""
-# print("*" * 100)
-# # 计算预测概率
-# y_scores = 1 / (1 + np.exp(-test_scores))
-# # 计算 Precision 和 Recall
-# precision, recall, _ = precision_recall_curve(y_test, y_scores)
-# # 计算 PR AUC
-# pr_auc = auc(recall, precision)
-# print("半监督异常检测器在原始测试集中的PR AUC 分数:", pr_auc)
-#
-# """AP指标"""
-# print("*" * 100)
-# # 计算预测概率
-# y_scores = 1 / (1 + np.exp(-test_scores))
-# # 计算 Average Precision
-# ap_score = average_precision_score(y_test, y_scores)
-# print("无监督异常检测器在原始测试集中的AP分数:", ap_score)
+# section 全部加噪数据中被SVM分类器误分类的数量
+label_pred = svm_model_noise.predict(X_copy)
+wrong_classify_indices = []
+for i in range(len(X_copy)):
+    if y[i] != label_pred[i]:
+        wrong_classify_indices.append(i)
+print("被误分类的样本数量：", len(wrong_classify_indices))
+
+# section 检测ugly outliers的召回率
+# ugly_found_by_detector = list(set(X_copy_repair_indices) & set(wrong_classify_indices))
+ugly_found_by_detector = list(set(bad_samples) & set(wrong_classify_indices))
+print("召回的ugly outliers的数量：", len(ugly_found_by_detector))
+print("ugly outliers的召回率为：", len(ugly_found_by_detector)/len(wrong_classify_indices))

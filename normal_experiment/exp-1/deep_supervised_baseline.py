@@ -38,7 +38,11 @@ enc = LabelEncoder()
 data['Class'] = enc.fit_transform(data['Class'])
 X = data.values[:, :-1]
 y = data.values[:, -1]
-categorical_features = [0, 6]
+
+# 找到分类特征的列名
+categorical_columns = data.select_dtypes(exclude=['float']).columns[:-1]
+# 获取分类特征对应的索引
+categorical_features = [data.columns.get_loc(col) for col in categorical_columns]
 
 # 统计不同值及其数量
 unique_values, counts = np.unique(y, return_counts=True)
@@ -46,7 +50,6 @@ unique_values, counts = np.unique(y, return_counts=True)
 # 输出结果
 for value, count in zip(unique_values, counts):
     print(f"标签: {value}, 数量: {count}")
-categorical_features = [0, 6]
 
 # 找到最小标签的数量
 min_count = counts.min()
@@ -306,7 +309,8 @@ test_union = np.union1d(test_outliers_noise, test_wrong_clf_noise)
 
 # 加噪数据集D'上需要修复的值
 # 需要修复的特征和标签值
-X_copy_repair_indices = np.union1d(outliers_noise, wrong_clf_noise)
+X_copy_repair_indices = outliers_noise  # 传统异常检测器仅能利用异常检测指标
+# X_copy_repair_indices = np.union1d(outliers_noise, wrong_clf_noise)
 
 # choice 不利用损失函数
 # X_copy_repair_indices = outliers_noise
@@ -325,7 +329,7 @@ y_inners = y[rows_to_keep]
 # section 识别有影响力的特征
 
 # 特征数取4或6
-i = 16
+i = len(feature_names)
 np.random.seed(1)
 categorical_names = {}
 for feature in categorical_features:
