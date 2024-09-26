@@ -1,7 +1,7 @@
 """
-（半）监督离群值检测算法修复效果测试
+𝑅(𝑡) ∧ M𝑜 (𝑡, D) ∧ 𝑋1 → ugly(𝑡)
+采用不同修复策略对上规则形式发现的ugly outliers进行修复
 """
-from collections import Counter
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -14,12 +14,8 @@ from sklearn import svm
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from lime.lime_tabular import LimeTabularExplainer
-from deepod.models.tabular import DeepSVDD
-from deepod.models.tabular import RCA
-from deepod.models import REPEN, SLAD, ICL, NeuTraL
-from deepod.models.tabular import DevNet
-from deepod.models import DeepSAD, RoSAS, PReNet
-import re
+from deepod.models.tabular import PReNet
+from sklearn.preprocessing import MinMaxScaler
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -35,8 +31,9 @@ np.set_printoptions(threshold=np.inf)
 file_path = "../datasets/multi_class/drybean.xlsx"
 data = pd.read_excel(file_path)
 enc = LabelEncoder()
+label_name = data.columns[-1]
 # 原始数据集D对应的Dataframe
-data['Class'] = enc.fit_transform(data['Class'])
+data[label_name] = enc.fit_transform(data[label_name])
 X = data.values[:, :-1]
 y = data.values[:, -1]
 
@@ -44,6 +41,10 @@ y = data.values[:, -1]
 categorical_columns = data.select_dtypes(exclude=['float']).columns[:-1]
 # 获取分类特征对应的索引
 categorical_features = [data.columns.get_loc(col) for col in categorical_columns]
+
+all_columns = data.columns.values.tolist()
+feature_names = all_columns[:-1]
+class_name = all_columns[-1]
 
 # 统计不同值及其数量
 unique_values, counts = np.unique(y, return_counts=True)
@@ -91,21 +92,8 @@ train_noise = np.intersect1d(train_indices, noise_indices)
 # 测试集中添加了高斯噪声的样本在原始数据集D中的索引
 test_noise = np.intersect1d(test_indices, noise_indices)
 
-# SECTION M𝑜 (𝑡, D) 针对元组异常的(弱)监督异常检测器
-
-# subsection 确定参数以及少数标签的索引
-
-epochs = 1
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-n_trans = 64
-random_state = 42
-hidden_dims = 20
-epoch_steps = 20
-batch_size = 256
-lr = 1e-5
-
-# section 选择监督异常检测器
-
+# SECTION M𝑜 (𝑡, D) 针对元组异常的无监督异常检测器PReNet
+# subsection 设置训练测试弱监督样本
 # 设置弱监督训练样本
 # 找到所有标签为 1 的样本索引
 semi_label_ratio = 0.1  # 设置已知的异常标签比例
@@ -121,47 +109,19 @@ y_semi_test = np.zeros_like(y_test)
 test_positive_indices = np.where(y_test == min_label)[0]
 y_semi_test[test_positive_indices] = 1
 
-# choice DevNet异常检测器
-# out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-#                           random_state=random_state)
-# out_clf.fit(X_train, y_semi)
-# out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-#                           random_state=random_state)
-# out_clf_noise.fit(X_train_copy, y_semi)
+# subsection 异常检测器训练
+epochs = 1
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+n_trans = 64
+random_state = 42
 
-# choice DeepSAD异常检测器
-# out_clf = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
-#                    device=device,
-#                    random_state=random_state)
-# out_clf.fit(X_train, y_semi)
-# out_clf_noise = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
-#                    device=device,
-#                    random_state=random_state)
-# out_clf_noise.fit(X_train_copy, y_semi)
+out_clf = PReNet(epochs=epochs, device=device, random_state=random_state)
+out_clf.fit(X_train, y=y_semi)
 
-# choice RoSAS异常检测器
-# out_clf = RoSAS(epochs=epochs, hidden_dims=hidden_dims, device=device, random_state=random_state)
-# out_clf.fit(X_train, y_semi)
-# out_clf_noise = RoSAS(epochs=epochs, hidden_dims=hidden_dims, device=device, random_state=random_state)
-# out_clf_noise.fit(X_train_copy, y_semi)
-
-# choice PReNeT异常检测器
-out_clf = PReNet(epochs=epochs,
-                  epoch_steps=epoch_steps,
-                  device=device,
-                  batch_size=batch_size,
-                  lr=lr)
-out_clf.fit(X_train, y_semi)
-out_clf_noise = PReNet(epochs=epochs,
-                  epoch_steps=epoch_steps,
-                  device=device,
-                  batch_size=batch_size,
-                  lr=lr)
+out_clf_noise = PReNet(epochs=epochs, device=device, random_state=random_state)
 out_clf_noise.fit(X_train_copy, y_semi)
 
-# SECTION 借助异常检测器，在训练集上进行异常值检测。
-#  经过检验，加入高斯噪声会影响异常值判别
-
+# SECTION 借助异常检测器，在训练集上进行异常值检测
 # subsection 从原始训练集中检测出异常值索引
 
 print("*"*100)
@@ -179,9 +139,9 @@ for i in range(len(X_train)):
         train_correct_detect_samples.append(i)
 print("训练集中异常检测器的检测准确度：", len(train_correct_detect_samples)/len(X_train))
 # 训练样本中的异常值索引
-print("训练集中检测到的异常值索引：", train_outliers_index)
-print("训练集中检测到的异常值数量：", len(train_outliers_index))
-print("训练集中检测到的异常值比例：", len(train_outliers_index)/len(X_train))
+print("训练集中异常值索引：", train_outliers_index)
+print("训练集中的异常值数量：", len(train_outliers_index))
+print("训练集中的异常值比例：", len(train_outliers_index)/len(X_train))
 
 # subsection 从原始测试集中检测出异常值索引
 
@@ -205,7 +165,6 @@ print("测试集中的异常值数量：", len(test_outliers_index))
 print("测试集中的异常值比例：", len(test_outliers_index)/len(X_test))
 
 # section 从加噪数据集的训练集和测试集中检测出的异常值
-
 # subsection 从加噪训练集中检测出异常值索引
 
 print("*"*100)
@@ -249,7 +208,7 @@ print("加噪测试集中异常值索引：", test_outliers_index_noise)
 print("加噪测试集中的异常值数量：", len(test_outliers_index_noise))
 print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/len(X_test_copy))
 
-# SECTION SVM模型的实现
+# SECTION SVM模型的实现和准确度测试
 
 # subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
@@ -257,19 +216,17 @@ print("*" * 100)
 svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)
 svm_model.fit(X_train, y_train)
 train_label_pred = svm_model.predict(X_train)
-test_label_pred = svm_model.predict(X_test)
 
 # 训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices = np.where(y_train != train_label_pred)[0]
+wrong_classified_train_indices = np.where(y_train != svm_model.predict(X_train))[0]
 print("训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 
 # 测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices = np.where(y_test != test_label_pred)[0]
+wrong_classified_test_indices = np.where(y_test != svm_model.predict(X_test))[0]
 print("测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 
 # 整体数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
-      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
@@ -277,57 +234,21 @@ print("*" * 100)
 svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True)
 svm_model_noise.fit(X_train_copy, y_train)
 train_label_pred_noise = svm_model_noise.predict(X_train_copy)
-test_label_pred_noise = svm_model_noise.predict(X_test_copy)
 
 # 加噪训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices_noise = np.where(y_train != train_label_pred_noise)[0]
+wrong_classified_train_indices_noise = np.where(y_train != svm_model_noise.predict(X_train_copy))[0]
 print("加噪训练样本中被SVM模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
 
 # 加噪测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices_noise = np.where(y_test != test_label_pred_noise)[0]
+wrong_classified_test_indices_noise = np.where(y_test != svm_model_noise.predict(X_test_copy))[0]
 print("加噪测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
 
 # 整体加噪数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
-      (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
+print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
-# section 识别X_copy中需要修复的元组
-
-# 异常检测器检测出的训练集和测试集中的异常值在原含噪数据D'中的索引
-train_outliers_noise = train_indices[train_outliers_index_noise]
-test_outliers_noise = test_indices[test_outliers_index_noise]
-outliers_noise = np.union1d(train_outliers_noise, test_outliers_noise)
-
-# choice 利用损失函数
-# 在加噪数据集D'上训练的SVM模型，其分类错误的样本在原含噪数据D'中的索引
-train_wrong_clf_noise = train_indices[wrong_classified_train_indices_noise]
-test_wrong_clf_noise = test_indices[wrong_classified_test_indices_noise]
-wrong_clf_noise = np.union1d(train_wrong_clf_noise, test_wrong_clf_noise)
-
-# outliers和分错样本的并集
-train_union = np.union1d(train_outliers_noise, train_wrong_clf_noise)
-test_union = np.union1d(test_outliers_noise, test_wrong_clf_noise)
-
-# 加噪数据集D'上需要修复的值
-# 需要修复的特征和标签值
-X_copy_repair_indices = outliers_noise  # 传统异常检测器仅能利用异常检测指标
-# X_copy_repair_indices = np.union1d(outliers_noise, wrong_clf_noise)
-
-# choice 不利用损失函数
-# X_copy_repair_indices = outliers_noise
-
-X_copy_repair = X_copy[X_copy_repair_indices]
-y_repair = y[X_copy_repair_indices]
-
-# 生成保留的行索引
-rows_to_keep = np.setdiff1d(np.arange(X_copy.shape[0]), X_copy_repair_indices)
-
-# 使用保留的行索引选择D'中的正常数据
-# 无需修复的特征和标签值
-X_copy_inners = X_copy[rows_to_keep]
-y_inners = y[rows_to_keep]
-
-# section 识别有影响力的特征
+# section 确定有影响力的特征
+# choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
+import re
 
 # 特征数取4或6
 i = len(feature_names)
@@ -338,7 +259,7 @@ for feature in categorical_features:
     le.fit(data.iloc[:, feature])
     data.iloc[:, feature] = le.transform(data.iloc[:, feature])
     categorical_names[feature] = le.classes_
-explainer = LimeTabularExplainer(X_train, feature_names=feature_names, class_names=feature_names,
+explainer = LimeTabularExplainer(X_train, feature_names=feature_names, class_names=class_name,
                                                    categorical_features=categorical_features,
                                                    categorical_names=categorical_names, kernel_width=3)
 # predict_proba 方法用于分类任务，predict 方法用于回归任务
@@ -350,44 +271,154 @@ top_feature_names = [re.search(r'([a-zA-Z_]\w*)', feature[0]).group(0).strip() f
 top_k_indices = [feature_names.index(name) for name in top_feature_names]
 print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices))
 
-# # section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
-# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
-#
-# # subsection 尝试修复异常数据的标签
-#
-# knn = KNeighborsClassifier(n_neighbors=3)
-# knn.fit(X_copy_inners, y_inners)
-#
-# # 预测异常值
-# y_pred = knn.predict(X_copy_repair)
-#
-# # 替换异常值
-# y[X_copy_repair_indices] = y_pred
-# y_train = y[train_indices]
-# y_test = y[test_indices]
-#
-# # subsection 重新在修复后的数据上训练SVM模型
-#
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
-# svm_repair.fit(X_train_copy, y_train)
-# y_train_pred = svm_repair.predict(X_train_copy)
-# y_test_pred = svm_repair.predict(X_test_copy)
-#
-# print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
-# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-#
-# # 测试样本中被SVM模型错误分类的样本
-# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-#
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
-#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+# # 获取最具影响力的特征及其权重
+# top_features = exp.as_list()
+# important_features = []
+# for feature_set in top_features:
+#     feature_long = feature_set[0]
+#     for feature in feature_names:
+#         if set(feature).issubset(set(feature_long)):
+#             important_features.append(feature)
+#             break
+# top_k_indices = [feature_names.index(feature_name) for feature_name in important_features]
+# print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices))
+
+# section 识别X_copy中需要修复的元组
+
+# 异常检测器检测出的训练集和测试集中的异常值在原含噪数据D'中的索引
+train_outliers_noise = train_indices[train_outliers_index_noise]
+test_outliers_noise = test_indices[test_outliers_index_noise]
+outliers_noise = np.union1d(train_outliers_noise, test_outliers_noise)
+
+# 在加噪数据集D'上训练的SVM模型，其分类错误的样本在原含噪数据D'中的索引
+train_wrong_clf_noise = train_indices[wrong_classified_train_indices_noise]
+test_wrong_clf_noise = test_indices[wrong_classified_test_indices_noise]
+wrong_clf_noise = np.union1d(train_wrong_clf_noise, test_wrong_clf_noise)
+
+# outliers和分错样本的并集
+train_union = np.union1d(train_outliers_noise, train_wrong_clf_noise)
+test_union = np.union1d(test_outliers_noise, test_wrong_clf_noise)
+
+# 加噪数据集D'上需要修复的值
+# 需要修复的特征和标签值
+X_copy_repair_indices = np.union1d(outliers_noise, wrong_clf_noise)
+
+# section 选取活动域过小的特征
+
+def calculate_made(data):
+    median = np.median(data)  # 计算中位数
+    abs_deviation = np.abs(data - median)  # 计算每个数据点与中位数的绝对误差
+    mad = np.median(abs_deviation)  # 计算绝对误差均值
+    made = 1.843 * mad
+    return median, made
+
+# 初始化MinMaxScaler
+scaler = MinMaxScaler()
+data_minmax = pd.read_excel(file_path)
+data_minmax[data.columns] = scaler.fit_transform(data[data.columns])
+# 设置分组的间隔
+interval = 0.01
+# 对每列数据进行分组
+bins = np.arange(0, 1.01, interval)  # 生成0-1之间100个间隔的数组
+columns_bins = {}
+columns_bins_count = []
+small_domain_features = []
+
+for column in data_minmax.columns:
+    digitized = np.digitize(data_minmax[column], bins)
+    unique_bins, counts = np.unique(digitized, return_counts=True)
+    columns_bins[column] = len(unique_bins)
+    columns_bins_count.append(len(unique_bins))
+
+for i in top_k_indices:
+    select_feature = feature_names[i]
+    selected_bins = columns_bins[select_feature]
+    median, made = calculate_made(np.array(columns_bins_count))
+    lower_threshold = median - 2 * made
+    upper_threshold = median + 2 * made
+    if selected_bins < lower_threshold:
+        small_domain_features.append(i)
+filtered_important_feature_indices = [item for item in top_k_indices if item not in small_domain_features]
+
+imbalanced_tuple_indices = set()
+
+# 初始化MinMaxScaler
+scaler_new = MinMaxScaler()
+data_imbalance = pd.read_excel(file_path)
+data_imbalance[data.columns] = scaler_new.fit_transform(data[data.columns])
+
+for feature in filtered_important_feature_indices:
+    select_feature = feature_names[feature]
+    # 对每列数据进行分组
+    bins = np.arange(0, 1.01, interval)  # 生成0-1之间100个间隔的数组
+    digitized = np.digitize(data_imbalance[select_feature], bins)
+    # 统计每个区间的计数
+    unique_bins, counts = np.unique(digitized, return_counts=True)
+    # 设置最小支持数差值
+    median_imbalance, made_imbalance = calculate_made(counts)
+
+    for t in X_copy_repair_indices:
+        train_row_number = X_train.shape[0]
+        ta = data_imbalance.iloc[t, feature]
+        # 找到 ta 所在的间隔
+        ta_bin = np.digitize([ta], bins)[0]
+        # 找到 ta 所在间隔的计数
+        ta_count = counts[unique_bins == ta_bin][0]
+        lower_threshold = median_imbalance - 2 * made_imbalance
+        upper_threshold = median_imbalance + 2 * made_imbalance
+        if ta_count < lower_threshold or ta_count > upper_threshold:
+            imbalanced_tuple_indices.add(t)
+
+X_copy_repair_indices = list(imbalanced_tuple_indices)
+X_copy_repair = X_copy[X_copy_repair_indices]
+y_repair = y[X_copy_repair_indices]
+
+# 生成保留的行索引
+rows_to_keep = np.setdiff1d(np.arange(X_copy.shape[0]), X_copy_repair_indices)
+
+# 使用保留的行索引选择D'中的正常数据
+# 无需修复的特征和标签值
+X_copy_inners = X_copy[rows_to_keep]
+y_inners = y[rows_to_keep]
+
+# section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
+#  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
+
+# subsection 尝试修复异常数据的标签
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_copy_inners, y_inners)
+
+# 预测异常值
+y_pred = knn.predict(X_copy_repair)
+
+# 替换异常值
+y[X_copy_repair_indices] = y_pred
+y_train = y[train_indices]
+y_test = y[test_indices]
+
+# subsection 重新在修复后的数据上训练SVM模型
+
+svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_repair.fit(X_train_copy, y_train)
+y_train_pred = svm_repair.predict(X_train_copy)
+y_test_pred = svm_repair.predict(X_test_copy)
+
+print("*" * 100)
+# 训练样本中被SVM模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
+print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+
+# 测试样本中被SVM模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
+print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+
+# 整体数据集D中被SVM模型错误分类的样本
+print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）
-# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
+# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）(修复效果由于监督/无监督基准)
 #
 # # subsection 确定有影响力特征中的离群值并采用均值修复
 # for i in range(X_copy.shape[1]):
@@ -421,50 +452,49 @@ print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices
 # print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
-# section 方案三：对X_copy中需要修复的元组借助knn进行修复，choice1 将异常元组中的元素直接设置为nan(修复误差太大，修复后准确性下降)
-#  choice2 仅将有影响力特征上的元素设置为np.nan
-
-# # choice 将异常元组中的所有元素设置为nan
-# for i in range(X_copy.shape[1]):
+# # section 方案三：对X_copy中需要修复的元组借助knn进行修复，choice1 将异常元组中的元素直接设置为nan(修复误差太大，修复后准确性下降)
+# #  choice2 仅将有影响力特征上的元素设置为np.nan
+#
+# # # choice 将异常元组中的所有元素设置为nan
+# # for i in range(X_copy.shape[1]):
+# #     X_copy[X_copy_repair_indices, i] = np.nan
+#
+# # choice 仅将异常元组中的有影响力的元素设置为nan
+# for i in top_k_indices:
 #     X_copy[X_copy_repair_indices, i] = np.nan
+#
+# # choice 使用knn修复所有被标记为nan的异常特征
+# # 创建 KNN Imputer 对象
+# knn_imputer = KNNImputer(n_neighbors=5)
+#
+# # 使用 KNN 算法填补异常特征
+# X_copy = knn_imputer.fit_transform(X_copy)
+# X_train_copy = X_copy[train_indices]
+# X_test_copy = X_copy[test_indices]
+#
+# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair.fit(X_train_copy, y_train)
+# y_train_pred = svm_repair.predict(X_train_copy)
+# y_test_pred = svm_repair.predict(X_test_copy)
+#
+# print("*" * 100)
+# # 训练样本中被SVM模型错误分类的样本
+# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
+# print("借助knn修复需要修复的样本后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：",
+#       len(wrong_classified_train_indices)/len(y_train))
+#
+# # 测试样本中被SVM模型错误分类的样本
+# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
+# print("借助knn修复需要修复的样本后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：",
+#       len(wrong_classified_test_indices)/len(y_test))
+#
+# # 整体数据集D中被SVM模型错误分类的样本
+# print("借助knn修复需要修复的样本后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
+#       /(len(y_train) + len(y_test)))
 
-# choice 仅将异常元组中的有影响力的元素设置为nan
-for i in range(X_copy.shape[1]):
-    if i in top_k_indices:
-        X_copy[X_copy_repair_indices, i] = np.nan
-
-# choice 使用knn修复所有被标记为nan的异常特征
-# 创建 KNN Imputer 对象
-knn_imputer = KNNImputer(n_neighbors=5)
-
-# 使用 KNN 算法填补异常特征
-X_copy = knn_imputer.fit_transform(X_copy)
-X_train_copy = X_copy[train_indices]
-X_test_copy = X_copy[test_indices]
-
-svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
-svm_repair.fit(X_train_copy, y_train)
-y_train_pred = svm_repair.predict(X_train_copy)
-y_test_pred = svm_repair.predict(X_test_copy)
-
-print("*" * 100)
-# 训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-print("借助knn修复需要修复的样本后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：",
-      len(wrong_classified_train_indices)/len(y_train))
-
-# 测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-print("借助knn修复需要修复的样本后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：",
-      len(wrong_classified_test_indices)/len(y_test))
-
-# 整体数据集D中被SVM模型错误分类的样本
-print("借助knn修复需要修复的样本后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
-      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
-      /(len(y_train) + len(y_test)))
-
-# section 方案四：将X_copy中训练集和测试集需要修复的元组直接删除，在去除后的训练集上训练svm模型
-
+# # section 方案四：将X_copy中训练集和测试集需要修复的元组直接删除，在去除后的训练集上训练svm模型
+#
 # set_X_copy_repair = set(X_copy_repair_indices)
 #
 # # 计算差集，去除训练集中需要修复的的元素
@@ -505,7 +535,6 @@ print("借助knn修复需要修复的样本后，完整数据集D中被SVM模型
 # print("删除需要修复的样本后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
 #       /(len(y_train_copy_repair) + len(y_test_copy_repair)))
-
 
 # # section 方案五：训练机器学习模型（随机森林模型），修复标签值
 #
@@ -556,6 +585,7 @@ print("借助knn修复需要修复的样本后，完整数据集D中被SVM模型
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # # section 方案六：训练机器学习模型(随机森林模型)，修复特征值（修复时间很久，慎用）
+# #  依次将有影响力的特征作为要修复的标签（连续特征对应回归模型，分类特征对应分类模型），使用其他特征参与训练
 #
 # from sklearn.ensemble import RandomForestRegressor
 # from sklearn.ensemble import RandomForestClassifier
