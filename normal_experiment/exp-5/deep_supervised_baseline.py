@@ -1,5 +1,5 @@
 """
-（半）监督离群值检测算法修复效果测试
+测试（半）监督算法对不同异常比例/不同异常类型数据的鲁棒性
 """
 from collections import Counter
 
@@ -49,7 +49,6 @@ file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_07.cs
 # choice PageBlocks数据集
 # file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_02_v01.csv"
 # file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_05_v01.csv"
-# file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_10.csv"
 
 # choice Wilt数据集
 # file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_02_v01.csv"
@@ -346,7 +345,7 @@ print("SVM模型在加噪测试集中的分类召回率：" + str(recall_score(y
 print("SVM模型在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
-y_test_prob = svm_model_noise.predict_proba(X_test)
+y_test_prob = svm_model_noise.predict_proba(X_test_copy)
 # 对于二分类任务
 roc_auc_test = roc_auc_score(y_test, y_test_prob[:, 1])  # 使用第二类的概率
 print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))

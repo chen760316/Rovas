@@ -135,7 +135,7 @@ class DataGenerator():
             # using the GuassianKDE for generating independent feature
             for i in range(X.shape[1]):
                 kde = GaussianKDE()
-                kde.fit(X[:, i])
+                kde.fit(X.iloc[:, i])
                 X_synthetic_anomalies[:, i] = kde.sample(pts_a)
 
         elif realistic_synthetic_mode == 'global':

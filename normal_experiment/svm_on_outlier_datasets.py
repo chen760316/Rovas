@@ -69,7 +69,6 @@ file_path = "datasets/multi_class_to_outlier/apple_outlier.csv"  # 原始样本�
 # file_path = "datasets/real_outlier_multi_class/waveform.csv"  # 原始样本分类准确度0.875，加噪样本分类准确度0.847
 # file_path = "datasets/real_outlier_multi_class/yeast.csv"  # 原始样本分类准确度0.575，加噪样本分类准确度0.544
 
-
 # subsection synthetic_outlier
 # file_path = "datasets/synthetic_outlier/apple_global_0.2.csv"  # 原始样本分类准确度0.803，加噪样本分类准确度0.803
 # file_path = "datasets/synthetic_outlier/iris_cluster_0.15.csv"  # 原始样本分类准确度1，加噪样本分类准确度1

@@ -2,9 +2,9 @@ from data_generator import DataGenerator
 import numpy as np
 import pandas as pd
 
-file_path = r"D:\CodeWork\python\outlier\Rovas\Rovas_rules\baselines\multi_class_datasets\processed\Iris_outlier.csv"
+file_path = "../real_outlier/annthyroid.csv"
 data = pd.read_csv(file_path)
-outlier_ratio = 0.15
+outlier_ratio = 0.3
 
 
 # data = pd.read_csv(file_path, sep=';')
@@ -46,14 +46,14 @@ data_generator = DataGenerator()
 # # Check for NaNs
 
 
-X_synthetic, y_synthetic = data_generator.generate_realistic_synthetic(X_combined, y_combined, 'cluster', alpha=1.5, percentage=0.2)
+X_synthetic, y_synthetic = data_generator.generate_realistic_synthetic(X_combined, y_combined, 'local', alpha=1.5, percentage=0.2)
 combined_array = np.column_stack((X_synthetic, y_synthetic))
 
 # 将合并后的 NumPy 数组转换为 DataFrame，并添加列名
 df_combined = pd.DataFrame(combined_array, columns=column_names)
 
 # 保存 DataFrame 为 CSV 文件
-df_combined.to_csv(r'.\iris_cluster_0.15.csv', index=False)
+df_combined.to_csv("annthyroid_0.3.csv", index=False)
 count_ones = np.sum(y_synthetic == 1)
 
 # 计算总元素的数量
