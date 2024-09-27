@@ -38,9 +38,23 @@ np.set_printoptions(threshold=np.inf)
 # data = pd.read_csv(file_path)
 file_path = "../datasets/multi_class/drybean.xlsx"
 data = pd.read_excel(file_path)
+
 enc = LabelEncoder()
+label_name = data.columns[-1]
+
 # 原始数据集D对应的Dataframe
-data['Class'] = enc.fit_transform(data['Class'])
+data[label_name] = enc.fit_transform(data[label_name])
+
+# 检测非数值列
+non_numeric_columns = data.select_dtypes(exclude=[np.number]).columns
+
+# 为每个非数值列创建一个 LabelEncoder 实例
+encoders = {}
+for column in non_numeric_columns:
+    encoder = LabelEncoder()
+    data[column] = encoder.fit_transform(data[column])
+    encoders[column] = encoder  # 保存每个列的编码器，以便将来可能需要解码
+
 X = data.values[:, :-1]
 y = data.values[:, -1]
 

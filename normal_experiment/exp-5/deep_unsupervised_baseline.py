@@ -28,12 +28,33 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理
 
-# choice drybean数据集
+# subsection 含有不同异常比例的真实数据集
 
-# file_path = "../datasets/multi_class_to_outlier/drybean_outlier.csv"
-# data = pd.read_csv(file_path)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+# choice Annthyroid数据集
+# file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_05_v01.csv"
+file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_07.csv"
+
+# choice Cardiotocography数据集
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_05_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_10_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_20_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_22.csv"
+
+# choice PageBlocks数据集
+# file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_05_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_10.csv"
+
+# choice Wilt数据集
+# file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_05.csv"
+
+data = pd.read_csv(file_path)
+# 如果数据量超过20000行，就随机采样到20000行
+if len(data) > 20000:
+    data = data.sample(n=20000, random_state=42)
 
 enc = LabelEncoder()
 label_name = data.columns[-1]
@@ -275,13 +296,15 @@ print("*" * 100)
 # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 y_test_pred = test_label_pred_noise
-print("SVM模型在加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+# print("SVM模型在加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='macro', zero_division=0)))
 print("SVM模型在加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
 print("SVM模型在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
 y_test_prob = svm_model_noise.predict_proba(X_test)
-roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+# 对于二分类任务
+roc_auc_test = roc_auc_score(y_test, y_test_prob[:, 1])  # 使用第二类的概率
 print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标(不支持多分类)"""
@@ -418,13 +441,14 @@ print("*" * 100)
 # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 
+# print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='macro', zero_division=0)))
 print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
 print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
 print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
 y_test_prob = svm_repair.predict_proba(X_test)
-roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+roc_auc_test = roc_auc_score(y_test, y_test_prob[:, 1])  # 一对多方式
 print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标(不支持多分类)"""
