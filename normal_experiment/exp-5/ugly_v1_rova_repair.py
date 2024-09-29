@@ -75,9 +75,9 @@ np.set_printoptions(threshold=np.inf)
 # file_path = "../datasets/synthetic_outlier/satellite_0.3.csv"
 
 # choice annthyroid数据集+local噪声+不同噪声比例(好用)
-file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
 # file_path = "../datasets/synthetic_outlier/annthyroid_0.2.csv"
-# file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
+file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
 
 # choice waveform数据集+dependency噪声+不同噪声比例
 # file_path = "../datasets/synthetic_outlier/waveform_dependency_0.1.csv"
@@ -687,7 +687,8 @@ y_test = y[test_indices]
 
 # subsection 重新在修复后的数据上训练SVM模型
 
-svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_repair = svm.SVC(class_weight='balanced', probability=True)
 svm_repair.fit(X_train_copy, y_train)
 y_train_pred = svm_repair.predict(X_train_copy)
 y_test_pred = svm_repair.predict(X_test_copy)
