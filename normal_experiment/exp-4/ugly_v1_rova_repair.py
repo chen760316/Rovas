@@ -31,31 +31,31 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
 # choice drybean数据集(效果好)
-# file_path = "../datasets/multi_class/drybean.xlsx"
-# data = pd.read_excel(file_path)
+file_path = "../datasets/multi_class/drybean.xlsx"
+data = pd.read_excel(file_path)
 
 # choice obesity数据集(效果好)
 # file_path = "../datasets/multi_class/obesity.csv"
 # data = pd.read_csv(file_path)
 
-# choice Iris数据集(效果好)
-file_path = "../datasets/multi_class/Iris.csv"
-data = pd.read_csv(file_path)
-
-# choice balita数据集(SVM拟合效果差，但修复后有提升)
+# choice balita数据集(SVM拟合效果差，但修复后效果提升显著)
 # file_path = "../datasets/multi_class/balita.csv"
+# data = pd.read_csv(file_path)
+
+# choice apple数据集(效果提升小)
+# file_path = "../datasets/multi_class/apple.csv"
+# data = pd.read_csv(file_path)
+
+# choice adult数据集(效果提升明显)
+# file_path = "../datasets/multi_class/adult.csv"
+# data = pd.read_csv(file_path)
+
+# choice Iris数据集(效果一般)
+# file_path = "../datasets/multi_class/Iris.csv"
 # data = pd.read_csv(file_path)
 
 # choice 真实异常检测数据集+local类型异常（需要搭配非线性SVM，线性SVM下无法很好划分）
 # file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
-# data = pd.read_csv(file_path)
-
-# choice apple数据集(效果一般)
-# file_path = "../datasets/multi_class/apple.csv"
-# data = pd.read_csv(file_path)
-
-# choice adult数据集(效果差)
-# file_path = "../datasets/multi_class/adult.csv"
 # data = pd.read_csv(file_path)
 
 # choice wine数据集(SVM拟合效果差，修复效果差)
