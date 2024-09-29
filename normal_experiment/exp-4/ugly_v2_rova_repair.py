@@ -46,6 +46,30 @@ data = pd.read_excel(file_path)
 # file_path = "../datasets/multi_class/apple.csv"
 # data = pd.read_csv(file_path)
 
+# choice body数据集(执行较慢，SVM拟合效果很差，但修复后效果提升显著)
+# file_path = "../datasets/multi_class/body/body.csv"
+# data = pd.read_csv(file_path)
+
+# # choice covertype数据集(执行很慢，SVM拟合效果很差，但修复后效果提升显著)
+# file_path = "../datasets/multi_class/covtype/covtype_process.csv"
+# data = pd.read_csv(file_path)
+
+# choice financial(执行较慢，SVM拟合效果很差，但修复后效果提升显著)
+# file_path = "../datasets/multi_class/financial/financial.csv"
+# data = pd.read_csv(file_path)
+
+# choice online(执行较慢，SVM拟合效果相对较差，修复后效果有提升
+# file_path = "../datasets/multi_class/online/online.csv"
+# data = pd.read_csv(file_path)
+
+# choice star(执行较慢，SVM拟合相对较差，修复后效果提升显著)
+# file_path = "../datasets/multi_class/star/star.csv"
+# data = pd.read_csv(file_path)
+
+# choice student(执行报错)
+# file_path = "../datasets/multi_class/student/Student.csv"
+# data = pd.read_csv(file_path)
+
 # choice 真实异常检测数据集+local类型异常（效果好）
 # file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
 # data = pd.read_csv(file_path)
@@ -67,6 +91,13 @@ data = pd.read_excel(file_path)
 # 如果数据量超过20000行，就随机采样到20000行
 if len(data) > 20000:
     data = data.sample(n=20000, random_state=42)
+
+# 检查无穷大
+data.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+# 检查并处理缺失值
+# 选择删除含有NaN的行
+data = data.dropna()
 
 enc = LabelEncoder()
 label_name = data.columns[-1]
