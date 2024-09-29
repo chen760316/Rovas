@@ -1,0 +1,2 @@
+https://www.kaggle.com/datasets/preethamgouda/financial-risk/data
+三分类，部分缺失，完整的数据总共5716条
