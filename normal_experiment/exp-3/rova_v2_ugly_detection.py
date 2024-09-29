@@ -33,6 +33,12 @@ np.set_printoptions(threshold=np.inf)
 file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+
 data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行

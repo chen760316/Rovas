@@ -18,6 +18,10 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.metrics import average_precision_score
+from sklearn.preprocessing import OneHotEncoder
+from scipy.special import softmax
+import warnings
+warnings.filterwarnings("ignore")
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -26,23 +30,52 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
-# choice drybean数据集
+# choice drybean数据集(效果好)
 file_path = "../datasets/multi_class/drybean.xlsx"
 data = pd.read_excel(file_path)
 
-# choice obesity数据集
+# choice obesity数据集(效果好)
 # file_path = "../datasets/multi_class/obesity.csv"
 # data = pd.read_csv(file_path)
 
-# choice adult数据集
-# file_path = "../datasets/multi_class/adult.csv"
-# data = pd.read_csv(file_path)
-# if len(data) > 20000:
-#     data = data.sample(n=20000, random_state=42)
-
-# choice Iris数据集
+# choice Iris数据集(效果好)
 # file_path = "../datasets/multi_class/Iris.csv"
 # data = pd.read_csv(file_path)
+
+# choice balita数据集(SVM拟合效果差，但修复后有提升)
+# file_path = "../datasets/multi_class/balita.csv"
+# data = pd.read_csv(file_path)
+
+# choice 真实异常检测数据集+local类型异常（需要搭配非线性SVM，线性SVM下无法很好划分）
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
+# data = pd.read_csv(file_path)
+
+# choice apple数据集(效果一般)
+# file_path = "../datasets/multi_class/apple.csv"
+# data = pd.read_csv(file_path)
+
+# choice adult数据集(效果差)
+# file_path = "../datasets/multi_class/adult.csv"
+# data = pd.read_csv(file_path)
+
+# choice wine数据集(SVM拟合效果差，修复效果差)
+# file_path = "../datasets/multi_class/wine.csv"
+# data = pd.read_csv(file_path, sep=';')
+
+# choice 真实异常检测数据集（本身不包含错误数据，不适合用于修读任务，且需要搭配非线性SVM）
+# file_path = "../datasets/real_outlier/Cardiotocography.csv"
+# file_path = "../datasets/real_outlier/annthyroid.csv"
+# file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+# data = pd.read_csv(file_path)
+
+# 如果数据量超过20000行，就随机采样到20000行
+if len(data) > 20000:
+    data = data.sample(n=20000, random_state=42)
 
 enc = LabelEncoder()
 label_name = data.columns[-1]
@@ -125,6 +158,7 @@ i = len(feature_names)
 np.random.seed(1)
 categorical_names = {}
 svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_model = svm.SVC(probability=True)
 svm_model.fit(X_train_copy, y_train)
 
 for feature in categorical_features:
@@ -160,29 +194,57 @@ print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices
 
 # section 找到loss(M, D, 𝑡) > 𝜆的元组
 
-# choice 使用sklearn库中的hinge损失函数
-decision_values = svm_model.decision_function(X_copy)
-predicted_labels = np.argmax(decision_values, axis=1)
-# 计算每个样本的hinge损失
-num_samples = X_copy.shape[0]
-num_classes = svm_model.classes_.shape[0]
-hinge_losses = np.zeros((num_samples, num_classes))
-hinge_loss = np.zeros(num_samples)
-for i in range(num_samples):
-    correct_class = int(y[i])
-    for j in range(num_classes):
-        if j != correct_class:
-            loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
-            hinge_losses[i, j] = loss_j
-    hinge_loss[i] = np.max(hinge_losses[i])
+# choice 使用sklearn库中的hinge损失函数（适用多分类数据集下的SVM）
+# decision_values = svm_model.decision_function(X_copy)
+# predicted_labels = np.argmax(decision_values, axis=1)
+# # 计算每个样本的hinge损失
+# num_samples = X_copy.shape[0]
+# num_classes = svm_model.classes_.shape[0]
+# hinge_losses = np.zeros((num_samples, num_classes))
+# hinge_loss = np.zeros(num_samples)
+# for i in range(num_samples):
+#     correct_class = int(y[i])
+#     for j in range(num_classes):
+#         if j != correct_class:
+#             loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
+#             hinge_losses[i, j] = loss_j
+#     hinge_loss[i] = np.max(hinge_losses[i])
+#
+# # 在所有加噪数据D中损失函数高于阈值的样本索引
+# ugly_outlier_candidates = np.where(hinge_loss > 1)[0]
+# # print("D中损失函数高于损失阈值的样本索引为：", ugly_outlier_candidates)
 
-# 在所有加噪数据D中损失函数高于阈值的样本索引
-ugly_outlier_candidates = np.where(hinge_loss > 1)[0]
-# print("D中损失函数高于损失阈值的样本索引为：", ugly_outlier_candidates)
+# choice 使用交叉熵损失函数(适用于二分类数据集下的通用分类器，判定bad不够准确)
+# # 获取决策值
+# decision_values = svm_model.decision_function(X_copy)
+# # 将决策值转换为适用于 Softmax 的二维数组
+# decision_values_reshaped = decision_values.reshape(-1, 1)  # 变成 (n_samples, 1)
+# # 应用 Softmax 函数（可以手动实现或使用 scipy）
+# y_pred = softmax(np.hstack((decision_values_reshaped, -decision_values_reshaped)), axis=1)
+# # 创建 OneHotEncoder 实例
+# encoder = OneHotEncoder(sparse=False)
+# # 预测y_test的值，并与y_train组合成为y_ground
+# y_test_pred = svm_model.predict(X_test_copy)
+# y_ground = np.hstack((y_train, y_test_pred))
+# # 对y_ground进行独热编码
+# y_true = encoder.fit_transform(y_ground.reshape(-1, 1))
+# # 计算每个样本的损失
+# loss_per_sample = -np.sum(y_true * np.log(y_pred + 1e-12), axis=1)
+# # 计算测试集平均多分类交叉熵损失
+# average_loss = -np.mean(np.sum(y_true * np.log(y_pred + 1e-12), axis=1))
+# bad_samples = np.where(loss_per_sample > average_loss)[0]
+# good_samples = np.where(loss_per_sample <= average_loss)[0]
+# # 在所有加噪数据D中损失函数高于阈值的样本索引
+# # ugly_outlier_candidates = np.where(bad_samples > 1)[0]
+# ugly_outlier_candidates = bad_samples
 
-# choice 判定分类错误的样本
-# y_pred = svm_model.predict(X_copy)
-# ugly_outlier_candidates = np.where(y_pred != y)
+# choice 判定分类错误的样本（适用于二分类和多分类下的分类器）
+y_pred = svm_model.predict(X_copy)
+ugly_outlier_candidates = np.where(y_pred != y)[0]
+# 提取对应索引的标签
+selected_labels = y[ugly_outlier_candidates]
+print("ugly_outlier_candidates的数量：", len(ugly_outlier_candidates))
+print("ugly_outlier_candidates中标签为1的样本数量：", np.sum(selected_labels == 1))
 
 # section 谓词outlier(𝐷, 𝑅, 𝑡 .𝐴, 𝜃 )的实现，找到所有有影响力的特征下的异常元组
 
@@ -226,6 +288,7 @@ for column_indice in top_k_indices:
 
 print("*" * 100)
 svm_clf = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_clf = svm.SVC(probability=True)
 svm_clf.fit(X_train, y_train)
 train_label_pred = svm_clf.predict(X_train)
 test_label_pred = svm_clf.predict(X_test)
@@ -305,9 +368,9 @@ print("SVM模型在加噪测试集中的分类召回率：" + str(recall_score(y
 print("SVM模型在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
-y_test_prob = svm_model.predict_proba(X_test)
-roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
-print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# y_test_prob = svm_model.predict_proba(X_test)
+# roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+# print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标(不支持多分类)"""
 # # 计算预测概率
@@ -343,6 +406,7 @@ outlier_tuple_set = set()
 for value in outlier_feature_indices.values():
     outlier_tuple_set.update(value)
 X_copy_repair_indices = list(outlier_tuple_set)
+# X_copy_repair_indices.extend(ugly_outlier_candidates)
 X_copy_repair = X_copy[X_copy_repair_indices]
 print("总的样本数量为：", len(X_copy))
 print("需要修复的样本数量为：", len(X_copy_repair_indices))
@@ -376,6 +440,7 @@ y_test = y[test_indices]
 
 print("*"*100)
 svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(probability=True)
 svm_repair.fit(X_train_copy, y_train)
 y_train_pred = svm_repair.predict(X_train_copy)
 y_test_pred = svm_repair.predict(X_test_copy)
@@ -421,9 +486,9 @@ print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y
 print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
-y_test_prob = svm_repair.predict_proba(X_test)
-roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
-print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# y_test_prob = svm_repair.predict_proba(X_test)
+# roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+# print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标(不支持多分类)"""
 # # 计算预测概率
@@ -460,6 +525,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 # # subsection 重新在修复后的数据上训练SVM模型
 #
 # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# # svm_repair = svm.SVC(probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -499,6 +565,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 # X_test_copy = X_copy[test_indices]
 #
 # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# # svm_repair = svm.SVC(probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -543,6 +610,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 # # subsection 重新在修复后的数据上训练SVM模型
 #
 # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# # svm_repair = svm.SVC(probability=True)
 # svm_repair.fit(X_train_copy_repair, y_train_copy_repair)
 # y_train_pred = svm_repair.predict(X_train_copy_repair)
 # y_test_pred = svm_repair.predict(X_test_copy_repair)
@@ -594,7 +662,8 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+#  svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# # svm_repair = svm.SVC(probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -644,6 +713,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 # # subsection 重新在修复后的数据上训练SVM模型
 #
 # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# # svm_repair = svm.SVC(probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)

@@ -36,6 +36,12 @@ np.set_printoptions(threshold=np.inf)
 file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+
 data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行
@@ -136,22 +142,22 @@ test_positive_indices = np.where(y_test == min_label)[0]
 y_semi_test[test_positive_indices] = 1
 
 # choice DevNet异常检测器
-out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-                          random_state=random_state)
-out_clf.fit(X_train, y_semi)
-out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-                          random_state=random_state)
-out_clf_noise.fit(X_train_copy, y_semi)
+# out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf.fit(X_train, y_semi)
+# out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y_semi)
 
 # choice DeepSAD异常检测器
-# out_clf = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
-#                    device=device,
-#                    random_state=random_state)
-# out_clf.fit(X_train, y_semi)
-# out_clf_noise = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
-#                    device=device,
-#                    random_state=random_state)
-# out_clf_noise.fit(X_train_copy, y_semi)
+out_clf = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
+                   device=device,
+                   random_state=random_state)
+out_clf.fit(X_train, y_semi)
+out_clf_noise = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
+                   device=device,
+                   random_state=random_state)
+out_clf_noise.fit(X_train_copy, y_semi)
 
 # choice RoSAS异常检测器
 # out_clf = RoSAS(epochs=epochs, hidden_dims=hidden_dims, device=device, random_state=random_state)

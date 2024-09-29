@@ -30,9 +30,16 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理
 
+# choice 选取数据集
 # file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+
 data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行
@@ -335,7 +342,7 @@ def calculate_made(data):
 # 初始化MinMaxScaler
 scaler = MinMaxScaler()
 data_minmax = pd.read_csv(file_path)
-data_minmax[data.columns] = scaler.fit_transform(data[data.columns])
+data_minmax[data_minmax.columns] = scaler.fit_transform(data_minmax[data_minmax.columns])
 # 设置分组的间隔
 interval = 0.01
 # 对每列数据进行分组
@@ -368,7 +375,7 @@ imbalanced_tuple_indices = set()
 # 初始化MinMaxScaler
 scaler_new = MinMaxScaler()
 data_imbalance = pd.read_csv(file_path)
-data_imbalance[data.columns] = scaler_new.fit_transform(data[data.columns])
+data_imbalance[data_imbalance.columns] = scaler_new.fit_transform(data_imbalance[data_imbalance.columns])
 
 for feature in filtered_important_feature_indices:
     select_feature = feature_names[feature]

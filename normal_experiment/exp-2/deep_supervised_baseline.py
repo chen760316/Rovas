@@ -31,9 +31,16 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理
 
+# choice 选取数据集
 # file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+
 data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行
@@ -136,22 +143,22 @@ test_positive_indices = np.where(y_test == min_label)[0]
 y_semi_test[test_positive_indices] = 1
 
 # choice DevNet异常检测器
-out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-                          random_state=random_state)
-out_clf.fit(X_train, y_semi)
-out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
-                          random_state=random_state)
-out_clf_noise.fit(X_train_copy, y_semi)
+# out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf.fit(X_train, y_semi)
+# out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y_semi)
 
 # choice DeepSAD异常检测器
-# out_clf = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
-#                    device=device,
-#                    random_state=random_state)
-# out_clf.fit(X_train, y_semi)
-# out_clf_noise = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
-#                    device=device,
-#                    random_state=random_state)
-# out_clf_noise.fit(X_train_copy, y_semi)
+out_clf = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
+                   device=device,
+                   random_state=random_state)
+out_clf.fit(X_train, y_semi)
+out_clf_noise = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
+                   device=device,
+                   random_state=random_state)
+out_clf_noise.fit(X_train_copy, y_semi)
 
 # choice RoSAS异常检测器
 # out_clf = RoSAS(epochs=epochs, hidden_dims=hidden_dims, device=device, random_state=random_state)
@@ -237,7 +244,7 @@ print("*" * 100)
 y_scores = 1 / (1 + np.exp(-test_scores))
 # 计算 Average Precision
 ap_score = average_precision_score(y_test, y_scores)
-print("无监督异常检测器在原始测试集中的AP分数:", ap_score)
+print("半监督异常检测器在原始测试集中的AP分数:", ap_score)
 
 # section 从加噪数据集的训练集和测试集中检测出的异常值
 
@@ -273,7 +280,7 @@ print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/
 
 """Accuracy指标"""
 print("*" * 100)
-print("无监督异常检测器在加噪测试集中的分类准确度：" + str(accuracy_score(y_test, test_pred_labels_noise)))
+print("半监督异常检测器在加噪测试集中的分类准确度：" + str(accuracy_score(y_test, test_pred_labels_noise)))
 
 """Precision/Recall/F1指标"""
 print("*" * 100)

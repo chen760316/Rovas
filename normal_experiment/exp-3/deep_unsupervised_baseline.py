@@ -32,6 +32,12 @@ np.set_printoptions(threshold=np.inf)
 file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+
 data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行
@@ -117,10 +123,10 @@ random_state = 42
 # out_clf_noise.fit(X_train_copy, y=None)
 
 # choice DeepSVDD异常检测器
-out_clf = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
-out_clf.fit(X_train, y=None)
-out_clf_noise = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
-out_clf_noise.fit(X_train_copy, y=None)
+# out_clf = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
+# out_clf.fit(X_train, y=None)
+# out_clf_noise = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y=None)
 
 # choice RCA异常检测器
 # out_clf = RCA(epochs=epochs, device=device, act='LeakyReLU')
@@ -135,10 +141,10 @@ out_clf_noise.fit(X_train_copy, y=None)
 # out_clf_noise.fit(X_train_copy)
 
 # choice SLAD异常检测器
-# out_clf = SLAD(epochs=2, device=device)
-# out_clf.fit(X_train)
-# out_clf_noise = SLAD(epochs=2, device=device)
-# out_clf_noise.fit(X_train_copy)
+out_clf = SLAD(epochs=2, device=device)
+out_clf.fit(X_train)
+out_clf_noise = SLAD(epochs=2, device=device)
+out_clf_noise.fit(X_train_copy)
 
 # choice ICL异常检测器
 # out_clf = ICL(epochs=1, device=device, n_ensemble='auto')

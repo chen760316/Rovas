@@ -20,6 +20,8 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.metrics import average_precision_score
+import warnings
+warnings.filterwarnings("ignore")
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -29,15 +31,60 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
 # choice drybean数据集
+# file_path = "../datasets/multi_class/drybean.xlsx"
+# data = pd.read_excel(file_path)
 
-# file_path = "../datasets/multi_class_to_outlier/drybean_outlier.csv"
+# choice obesity数据集
+file_path = "../datasets/multi_class/obesity.csv"
+data = pd.read_csv(file_path)
+
+# choice adult数据集(效果好)
+# file_path = "../datasets/multi_class/adult.csv"
 # data = pd.read_csv(file_path)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+
+# choice Iris数据集(效果一般)
+# file_path = "../datasets/multi_class/Iris.csv"
+# data = pd.read_csv(file_path)
+
+# choice 真实异常检测数据集+local类型异常（需要搭配非线性SVM，线性SVM下无法很好划分）
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
+# data = pd.read_csv(file_path)
+
+# choice apple数据集(效果一般)
+# file_path = "../datasets/multi_class/apple.csv"
+# data = pd.read_csv(file_path)
+
+# choice 真实异常检测数据集（本身不包含错误数据，不适合用于修读任务，且需要搭配非线性SVM）
+# file_path = "../datasets/real_outlier/Cardiotocography.csv"
+# file_path = "../datasets/real_outlier/annthyroid.csv"
+# file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+# data = pd.read_csv(file_path)
+
+# 如果数据量超过20000行，就随机采样到20000行
+if len(data) > 20000:
+    data = data.sample(n=20000, random_state=42)
+
 enc = LabelEncoder()
 label_name = data.columns[-1]
+
 # 原始数据集D对应的Dataframe
 data[label_name] = enc.fit_transform(data[label_name])
+
+# 检测非数值列
+non_numeric_columns = data.select_dtypes(exclude=[np.number]).columns
+
+# 为每个非数值列创建一个 LabelEncoder 实例
+encoders = {}
+for column in non_numeric_columns:
+    encoder = LabelEncoder()
+    data[column] = encoder.fit_transform(data[column])
+    encoders[column] = encoder  # 保存每个列的编码器，以便将来可能需要解码
+
 X = data.values[:, :-1]
 y = data.values[:, -1]
 
@@ -45,7 +92,6 @@ y = data.values[:, -1]
 categorical_columns = data.select_dtypes(exclude=['float']).columns[:-1]
 # 获取分类特征对应的索引
 categorical_features = [data.columns.get_loc(col) for col in categorical_columns]
-
 all_columns = data.columns.values.tolist()
 feature_names = all_columns[:-1]
 class_name = all_columns[-1]
@@ -87,10 +133,9 @@ X_copy[noise_indices] += np.random.normal(0, 1, (n_noise, X.shape[1]))
 # 从加噪数据中生成加噪训练数据和加噪测试数据
 X_train_copy = X_copy[train_indices]
 X_test_copy = X_copy[test_indices]
-feature_names = data.columns.values.tolist()
 combined_array = np.hstack((X_copy, y.reshape(-1, 1)))  # 将 y 重新调整为列向量并合并
 # 添加噪声后的数据集D'对应的Dataframe
-data_copy = pd.DataFrame(combined_array, columns=feature_names)
+data_copy = pd.DataFrame(combined_array, columns=all_columns)
 # 训练集中添加了高斯噪声的样本在原始数据集D中的索引
 train_noise = np.intersect1d(train_indices, noise_indices)
 # 测试集中添加了高斯噪声的样本在原始数据集D中的索引
@@ -202,7 +247,6 @@ for i in range(len(X_test_copy)):
     if test_pred_labels_noise[i] == 1:
         test_outliers_index_noise.append(i)
 test_correct_detect_samples_noise = []
-print(len(test_pred_labels_noise), len(y_test))
 for i in range(len(X_test_copy)):
     if test_pred_labels_noise[i] == y_semi_test[i]:
         test_correct_detect_samples_noise.append(i)
@@ -266,9 +310,9 @@ print("SVM模型在加噪测试集中的分类召回率：" + str(recall_score(y
 print("SVM模型在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
-y_test_prob = svm_model_noise.predict_proba(X_test)
-roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
-print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# y_test_prob = svm_model_noise.predict_proba(X_test)
+# roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+# print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标(不支持多分类)"""
 # # 计算预测概率
@@ -366,8 +410,22 @@ def calculate_made(data):
 
 # 初始化MinMaxScaler
 scaler = MinMaxScaler()
-data_minmax = pd.read_excel(file_path)
-data_minmax[data.columns] = scaler.fit_transform(data[data.columns])
+data_minmax = pd.read_csv(file_path)
+
+if len(data_minmax) > 20000:
+    data_minmax = data_minmax.sample(n=20000, random_state=42)
+
+# 检测非数值列
+non_numeric_columns = data_minmax.select_dtypes(exclude=[np.number]).columns
+
+# 为每个非数值列创建一个 LabelEncoder 实例
+encoders = {}
+for column in non_numeric_columns:
+    encoder = LabelEncoder()
+    data_minmax[column] = encoder.fit_transform(data_minmax[column])
+    encoders[column] = encoder  # 保存每个列的编码器，以便将来可能需要解码
+
+data_minmax[data_minmax.columns] = scaler.fit_transform(data_minmax[data_minmax.columns])
 # 设置分组的间隔
 interval = 0.01
 # 对每列数据进行分组
@@ -396,8 +454,22 @@ imbalanced_tuple_indices = set()
 
 # 初始化MinMaxScaler
 scaler_new = MinMaxScaler()
-data_imbalance = pd.read_excel(file_path)
-data_imbalance[data.columns] = scaler_new.fit_transform(data[data.columns])
+data_imbalance = pd.read_csv(file_path)
+
+if len(data_imbalance) > 20000:
+    data_imbalance = data_imbalance.sample(n=20000, random_state=42)
+
+# 检测非数值列
+non_numeric_columns = data_imbalance.select_dtypes(exclude=[np.number]).columns
+
+# 为每个非数值列创建一个 LabelEncoder 实例
+encoders = {}
+for column in non_numeric_columns:
+    encoder = LabelEncoder()
+    data_imbalance[column] = encoder.fit_transform(data_imbalance[column])
+    encoders[column] = encoder  # 保存每个列的编码器，以便将来可能需要解码
+
+data_imbalance[data_imbalance.columns] = scaler_new.fit_transform(data_imbalance[data_imbalance.columns])
 
 for feature in filtered_important_feature_indices:
     select_feature = feature_names[feature]
@@ -423,6 +495,8 @@ for feature in filtered_important_feature_indices:
 
 X_copy_repair_indices = list(imbalanced_tuple_indices)
 X_copy_repair = X_copy[X_copy_repair_indices]
+print("*"*100)
+print("需要修复的样本数量为：", len(X_copy_repair_indices))
 y_repair = y[X_copy_repair_indices]
 
 # 生成保留的行索引
@@ -484,9 +558,9 @@ print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y
 print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
-y_test_prob = svm_repair.predict_proba(X_test)
-roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
-print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# y_test_prob = svm_repair.predict_proba(X_test)
+# roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+# print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标(不支持多分类)"""
 # # 计算预测概率

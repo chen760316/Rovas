@@ -31,8 +31,10 @@ np.set_printoptions(threshold=np.inf)
 file_path = "../datasets/multi_class/drybean.xlsx"
 data = pd.read_excel(file_path)
 enc = LabelEncoder()
+label_name = data.columns[-1]
+
 # 原始数据集D对应的Dataframe
-data['Class'] = enc.fit_transform(data['Class'])
+data[label_name] = enc.fit_transform(data[label_name])
 X = data.values[:, :-1]
 y = data.values[:, -1]
 
@@ -136,7 +138,7 @@ out_clf = NeuTraL(epochs=1, device=device)
 out_clf.fit(X_train)
 out_clf_noise = NeuTraL(epochs=1, device=device)
 out_clf_noise.fit(X_train_copy)
-
+0
 # SECTION 借助异常检测器，在训练集上进行异常值检测。
 #  经过检验，加入高斯噪声会影响异常值判别
 
