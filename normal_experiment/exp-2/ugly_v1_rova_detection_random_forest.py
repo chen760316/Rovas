@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 import torch
 from deepod.models.tabular import GOAD
-from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from lime.lime_tabular import LimeTabularExplainer
@@ -121,8 +121,8 @@ import re
 i = len(feature_names)
 np.random.seed(1)
 categorical_names = {}
-svm_model = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-svm_model.fit(X_train_copy, y_train)
+rf_model = RandomForestClassifier(n_estimators=50, max_depth=10, min_samples_split=10, min_samples_leaf=4, random_state=42, class_weight='balanced')
+rf_model.fit(X_train_copy, y_train)
 
 for feature in categorical_features:
     le = LabelEncoder()
@@ -134,7 +134,7 @@ explainer = LimeTabularExplainer(X_train, feature_names=feature_names, class_nam
                                                    categorical_features=categorical_features,
                                                    categorical_names=categorical_names, kernel_width=3)
 
-predict_fn = lambda x: svm_model.predict_proba(x)
+predict_fn = lambda x: rf_model.predict_proba(x)
 exp = explainer.explain_instance(X_train[i], predict_fn, num_features=len(feature_names)//2)
 # 获取最具影响力的特征及其权重
 top_features = exp.as_list()
@@ -145,11 +145,11 @@ print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices
 # section 找到loss(M, D, 𝑡) > 𝜆的元组
 
 # # choice 使用sklearn库中的hinge损失函数
-# decision_values = svm_model.decision_function(X_copy)
+# decision_values = rf_model.decision_function(X_copy)
 # predicted_labels = np.argmax(decision_values, axis=1)
 # # 计算每个样本的hinge损失
 # num_samples = X_copy.shape[0]
-# num_classes = svm_model.classes_.shape[0]
+# num_classes = rf_model.classes_.shape[0]
 # hinge_losses = np.zeros((num_samples, num_classes))
 # hinge_loss = np.zeros(num_samples)
 # for i in range(num_samples):
@@ -166,14 +166,9 @@ print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices
 
 # choice 使用交叉熵损失函数
 from sklearn.preprocessing import OneHotEncoder
-from scipy.special import softmax
 
-# 获取决策值
-decision_values = svm_model.decision_function(X_copy)
-# 将决策值转换为适用于 Softmax 的二维数组
-decision_values_reshaped = decision_values.reshape(-1, 1)  # 变成 (n_samples, 1)
-# 应用 Softmax 函数（可以手动实现或使用 scipy）
-y_pred = softmax(np.hstack((decision_values_reshaped, -decision_values_reshaped)), axis=1)
+# 获取概率值
+y_pred = rf_model.predict_proba(X_copy)[:, [1, 0]]
 # 创建 OneHotEncoder 实例
 encoder = OneHotEncoder(sparse=False)
 # 拟合并转换 y_test
