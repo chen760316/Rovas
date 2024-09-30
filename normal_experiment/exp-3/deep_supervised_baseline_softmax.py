@@ -1,6 +1,8 @@
 """
-无监督离群值检测算法对ugly outliers的检测能力
+(半) 监督离群值检测算法对ugly outliers的检测能力
 """
+from collections import Counter
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -8,13 +10,15 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 import torch
 from deepod.models.tabular import GOAD
-from sklearn import svm
+from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from lime.lime_tabular import LimeTabularExplainer
 from deepod.models.tabular import DeepSVDD
 from deepod.models.tabular import RCA
 from deepod.models import REPEN, SLAD, ICL, NeuTraL
+from deepod.models.tabular import DevNet
+from deepod.models import DeepSAD, RoSAS, PReNet
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import precision_recall_curve, auc
@@ -109,56 +113,66 @@ train_noise = np.intersect1d(train_indices, noise_indices)
 # 测试集中添加了高斯噪声的样本在原始数据集D中的索引
 test_noise = np.intersect1d(test_indices, noise_indices)
 
-# SECTION 选择无监督异常检测器
+# section 选择监督异常检测器
+
+# subsection 确定参数以及少数标签的索引
 
 epochs = 1
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 n_trans = 64
 random_state = 42
+hidden_dims = 20
+epoch_steps = 20
+batch_size = 256
+lr = 1e-5
 
-# choice GOAD异常检测器
-# out_clf = GOAD(epochs=epochs, device=device, n_trans=n_trans)
-# out_clf.fit(X_train, y=None)
-# out_clf_noise = GOAD(epochs=epochs, device=device, n_trans=n_trans)
-# out_clf_noise.fit(X_train_copy, y=None)
+# 设置弱监督训练样本
+# 找到所有标签为 1 的样本索引
+semi_label_ratio = 0.1  # 设置已知的异常标签比例
+positive_indices = np.where(y_train == min_label)[0]
+# 随机选择 10% 的正样本
+n_positive_to_keep = int(len(positive_indices) * semi_label_ratio)
+selected_positive_indices = np.random.choice(positive_indices, n_positive_to_keep, replace=False)
+# 创建用于异常检测器的训练标签
+y_semi = np.zeros_like(y_train)  # 默认全为 0
+y_semi[selected_positive_indices] = 1  # 设置选中的正样本为 1
+# 创建用于异常检测器的测试标签
+y_semi_test = np.zeros_like(y_test)
+test_positive_indices = np.where(y_test == min_label)[0]
+y_semi_test[test_positive_indices] = 1
 
-# choice DeepSVDD异常检测器
-# out_clf = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
-# out_clf.fit(X_train, y=None)
-# out_clf_noise = DeepSVDD(epochs=epochs, device=device, random_state=random_state)
-# out_clf_noise.fit(X_train_copy, y=None)
+# choice DevNet异常检测器
+# out_clf = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf.fit(X_train, y_semi)
+# out_clf_noise = DevNet(epochs=epochs, hidden_dims=hidden_dims, device=device,
+#                           random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y_semi)
 
-# choice RCA异常检测器
-# out_clf = RCA(epochs=epochs, device=device, act='LeakyReLU')
-# out_clf.fit(X_train)
-# out_clf_noise = RCA(epochs=epochs, device=device, act='LeakyReLU')
-# out_clf_noise.fit(X_train_copy)
+# choice DeepSAD异常检测器
+out_clf = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
+                   device=device,
+                   random_state=random_state)
+out_clf.fit(X_train, y_semi)
+out_clf_noise = DeepSAD(epochs=epochs, hidden_dims=hidden_dims,
+                   device=device,
+                   random_state=random_state)
+out_clf_noise.fit(X_train_copy, y_semi)
 
-# choice RePEN异常检测器
-# out_clf = REPEN(epochs=5, device=device)
-# out_clf.fit(X_train)
-# out_clf_noise = REPEN(epochs=5, device=device)
-# out_clf_noise.fit(X_train_copy)
+# choice RoSAS异常检测器
+# out_clf = RoSAS(epochs=epochs, hidden_dims=hidden_dims, device=device, random_state=random_state)
+# out_clf.fit(X_train, y_semi)
+# out_clf_noise = RoSAS(epochs=epochs, hidden_dims=hidden_dims, device=device, random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y_semi)
 
-# choice SLAD异常检测器
-out_clf = SLAD(epochs=2, device=device)
-out_clf.fit(X_train)
-out_clf_noise = SLAD(epochs=2, device=device)
-out_clf_noise.fit(X_train_copy)
+# choice PReNeT异常检测器
+# out_clf = PReNet(epochs=epochs, device=device, random_state=random_state)
+# out_clf.fit(X_train, y_semi)
+# out_clf_noise = PReNet(epochs=epochs, device=device, random_state=random_state)
+# out_clf_noise.fit(X_train_copy, y_semi)
 
-# choice ICL异常检测器
-# out_clf = ICL(epochs=1, device=device, n_ensemble='auto')
-# out_clf.fit(X_train)
-# out_clf_noise = ICL(epochs=1, device=device, n_ensemble='auto')
-# out_clf_noise.fit(X_train_copy)
-
-# choice NeuTraL异常检测器
-# out_clf = NeuTraL(epochs=1, device=device)
-# out_clf.fit(X_train)
-# out_clf_noise = NeuTraL(epochs=1, device=device)
-# out_clf_noise.fit(X_train_copy)
-
-# SECTION 在原始训练集和测试集上检测异常值
+# SECTION 借助异常检测器，在训练集上进行异常值检测。
+#  经过检验，加入高斯噪声会影响异常值判别
 
 # subsection 从原始训练集中检测出异常值索引
 
@@ -191,7 +205,22 @@ print("测试集中异常值索引：", test_outliers_index)
 print("测试集中的异常值数量：", len(test_outliers_index))
 print("测试集中的异常值比例：", len(test_outliers_index)/len(X_test))
 
-# section 从加噪数据集的训练集和测试集中检测出出异常值
+"""Accuracy指标"""
+print("*" * 100)
+print("半监督异常检测器在原始测试集中的分类准确度：" + str(accuracy_score(y_test, test_pred_labels)))
+
+# subsection 从全部数据中检测出异常值索引
+
+print("*"*100)
+scorese = out_clf.decision_function(X)
+pred_labels, confidence = out_clf.predict(X, return_confidence=True)
+outliers_index = []
+for i in range(len(X)):
+    if pred_labels[i] == 1:
+        outliers_index.append(i)
+print("全部数据中的异常值数量：", len(outliers_index))
+
+# section 从加噪数据集的训练集和测试集中检测出的异常值
 
 # subsection 从加噪训练集中检测出异常值索引
 
@@ -223,7 +252,7 @@ print("加噪测试集中异常值索引：", test_outliers_index_noise)
 print("加噪测试集中的异常值数量：", len(test_outliers_index_noise))
 print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/len(X_test_copy))
 
-# subsection 从全部加噪数据中检测出异常值索引
+# subsection 从全部数据中检测出异常值索引
 
 print("*"*100)
 scores_noise = out_clf_noise.decision_function(X_copy)
@@ -234,48 +263,48 @@ for i in range(len(X_copy)):
         outliers_index_noise.append(i)
 print("加噪数据中的异常值数量：", len(outliers_index_noise))
 
-# section 训练下游任务的SVM模型
+# section 训练下游任务的softmax模型
 
-# subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
-
-print("*" * 100)
-svm_model = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-svm_model.fit(X_train, y_train)
-train_label_pred = svm_model.predict(X_train)
-
-# 训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices = np.where(y_train != svm_model.predict(X_train))[0]
-print("训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-
-# 测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices = np.where(y_test != svm_model.predict(X_test))[0]
-print("测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-
-# 整体数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
-
-# subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
+# subsection 原始数据集上训练的softmax模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-svm_model_noise.fit(X_train_copy, y_train)
-train_label_pred_noise = svm_model_noise.predict(X_train_copy)
+softmax_model = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_model.fit(X_train, y_train)
+train_label_pred = softmax_model.predict(X_train)
 
-# 加噪训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices_noise = np.where(y_train != svm_model_noise.predict(X_train_copy))[0]
-print("加噪训练样本中被SVM模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
+# 训练样本中被softmax模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != softmax_model.predict(X_train))[0]
+print("训练样本中被softmax模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 
-# 加噪测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices_noise = np.where(y_test != svm_model_noise.predict(X_test_copy))[0]
-print("加噪测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
+# 测试样本中被softmax模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != softmax_model.predict(X_test))[0]
+print("测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 
-# 整体加噪数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
+# 整体数据集D中被softmax模型错误分类的样本
+print("完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# subsection 加噪数据集上训练的softmax模型在训练集和测试集中分错的样本比例
+
+print("*" * 100)
+softmax_model_noise = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_model_noise.fit(X_train_copy, y_train)
+train_label_pred_noise = softmax_model_noise.predict(X_train_copy)
+
+# 加噪训练样本中被softmax模型错误分类的样本
+wrong_classified_train_indices_noise = np.where(y_train != softmax_model_noise.predict(X_train_copy))[0]
+print("加噪训练样本中被softmax模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
+
+# 加噪测试样本中被softmax模型错误分类的样本
+wrong_classified_test_indices_noise = np.where(y_test != softmax_model_noise.predict(X_test_copy))[0]
+print("加噪测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
+
+# 整体加噪数据集D中被softmax模型错误分类的样本
+print("完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
 # section 计算加噪数据中的交叉熵损失
 
 # 获取决策值
-decision_values = svm_model_noise.decision_function(X_copy)
+decision_values = softmax_model_noise.decision_function(X_copy)
 # 将决策值转换为适用于 Softmax 的二维数组
 decision_values_reshaped = decision_values.reshape(-1, 1)  # 变成 (n_samples, 1)
 # 应用 Softmax 函数（可以手动实现或使用 scipy）
@@ -293,8 +322,8 @@ good_samples_noise = np.where(loss_per_sample <= average_loss)[0]
 print("损失不超过阈值的样本数量：", len(good_samples_noise))
 print("损失大于阈值的样本数量：", len(bad_samples_noise))
 
-# section 全部加噪数据中被SVM分类器误分类的数量
-label_pred = svm_model_noise.predict(X_copy)
+# section 全部加噪数据中被softmax分类器误分类的数量
+label_pred = softmax_model_noise.predict(X_copy)
 wrong_classify_indices = []
 for i in range(len(X_copy)):
     if y[i] != label_pred[i]:

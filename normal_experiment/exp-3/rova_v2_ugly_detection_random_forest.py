@@ -4,13 +4,14 @@ Rovas对ugly outliers的检测能力
 """
 
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import torch
 from deepod.models.tabular import GOAD
-from sklearn import svm
+
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from lime.lime_tabular import LimeTabularExplainer
@@ -245,43 +246,43 @@ for i in range(len(X_copy)):
     if pred_labels_noise[i] == 1:
         outliers_index_noise.append(i)
 
-# SECTION SVM模型的实现和准确度测试
+# SECTION random forest模型的实现和准确度测试
 
-# subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
-
-print("*" * 100)
-svm_model = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-svm_model.fit(X_train, y_train)
-train_label_pred = svm_model.predict(X_train)
-
-# 训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices = np.where(y_train != svm_model.predict(X_train))[0]
-print("训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-
-# 测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices = np.where(y_test != svm_model.predict(X_test))[0]
-print("测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-
-# 整体数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
-
-# subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
+# subsection 原始数据集上训练的random forest模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-svm_model_noise.fit(X_train_copy, y_train)
-train_label_pred_noise = svm_model_noise.predict(X_train_copy)
+rf_model = RandomForestClassifier(n_estimators=50, max_depth=10, min_samples_split=10, min_samples_leaf=4, random_state=42, class_weight='balanced')
+rf_model.fit(X_train, y_train)
+train_label_pred = rf_model.predict(X_train)
 
-# 加噪训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices_noise = np.where(y_train != svm_model_noise.predict(X_train_copy))[0]
-print("加噪训练样本中被SVM模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
+# 训练样本中被random forest模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != rf_model.predict(X_train))[0]
+print("训练样本中被random forest模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 
-# 加噪测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices_noise = np.where(y_test != svm_model_noise.predict(X_test_copy))[0]
-print("加噪测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
+# 测试样本中被random forest模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != rf_model.predict(X_test))[0]
+print("测试样本中被random forest模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 
-# 整体加噪数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
+# 整体数据集D中被random forest模型错误分类的样本
+print("完整数据集D中被random forest模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# subsection 加噪数据集上训练的random forest模型在训练集和测试集中分错的样本比例
+
+print("*" * 100)
+rf_model_noise = RandomForestClassifier(n_estimators=50, max_depth=10, min_samples_split=10, min_samples_leaf=4, random_state=42, class_weight='balanced')
+rf_model_noise.fit(X_train_copy, y_train)
+train_label_pred_noise = rf_model_noise.predict(X_train_copy)
+
+# 加噪训练样本中被random forest模型错误分类的样本
+wrong_classified_train_indices_noise = np.where(y_train != rf_model_noise.predict(X_train_copy))[0]
+print("加噪训练样本中被random forest模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
+
+# 加噪测试样本中被random forest模型错误分类的样本
+wrong_classified_test_indices_noise = np.where(y_test != rf_model_noise.predict(X_test_copy))[0]
+print("加噪测试样本中被random forest模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
+
+# 整体加噪数据集D中被random forest模型错误分类的样本
+print("完整数据集D中被random forest模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
 # section M𝑐 (𝑅, 𝐴,M) 确定有影响力的特征
 # choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
@@ -301,7 +302,7 @@ explainer = LimeTabularExplainer(X_train, feature_names=feature_names, class_nam
                                                    categorical_features=categorical_features,
                                                    categorical_names=categorical_names, kernel_width=3)
 # predict_proba 方法用于分类任务，predict 方法用于回归任务
-predict_fn = lambda x: svm_model.predict_proba(x)
+predict_fn = lambda x: rf_model.predict_proba(x)
 exp = explainer.explain_instance(X_train[i], predict_fn, num_features=len(feature_names)//2)
 # 获取最具影响力的特征及其权重
 top_features = exp.as_list()
@@ -316,7 +317,7 @@ train_outliers_noise = train_indices[train_outliers_index_noise]
 test_outliers_noise = test_indices[test_outliers_index_noise]
 outliers_noise = np.union1d(train_outliers_noise, test_outliers_noise)
 
-# 在加噪数据集D'上训练的SVM模型，其分类错误的样本在原含噪数据D'中的索引
+# 在加噪数据集D'上训练的random forest模型，其分类错误的样本在原含噪数据D'中的索引
 train_wrong_clf_noise = train_indices[wrong_classified_train_indices_noise]
 test_wrong_clf_noise = test_indices[wrong_classified_test_indices_noise]
 wrong_clf_noise = np.union1d(train_wrong_clf_noise, test_wrong_clf_noise)
@@ -399,16 +400,12 @@ for feature in filtered_important_feature_indices:
             imbalanced_tuple_indices.add(t)
 
 # section 计算交叉熵损失
-# 获取决策值
-decision_values = svm_model_noise.decision_function(X_copy)
-# 将决策值转换为适用于 Softmax 的二维数组
-decision_values_reshaped = decision_values.reshape(-1, 1)  # 变成 (n_samples, 1)
-# 应用 Softmax 函数（可以手动实现或使用 scipy）
-y_pred = softmax(np.hstack((decision_values_reshaped, -decision_values_reshaped)), axis=1)
+# 获取概率值
+y_pred = rf_model.predict_proba(X_copy)[:, [1, 0]]
 # 创建 OneHotEncoder 实例
 encoder = OneHotEncoder(sparse=False)
 # 预测y_test的值，并与y_train组合成为y_ground
-y_test_pred = svm_model.predict(X_test_copy)
+y_test_pred = rf_model.predict(X_test_copy)
 y_ground = np.hstack((y_train, y_test_pred))
 # 对y_ground进行独热编码
 y_true = encoder.fit_transform(y_ground.reshape(-1, 1))
@@ -437,8 +434,8 @@ rows_to_keep = np.setdiff1d(np.arange(X_copy.shape[0]), X_copy_repair_indices)
 X_copy_inners = X_copy[rows_to_keep]
 y_inners = y[rows_to_keep]
 
-# section 全部加噪数据中被SVM分类器误分类的数量
-label_pred = svm_model_noise.predict(X_copy)
+# section 全部加噪数据中被random forest分类器误分类的数量
+label_pred = rf_model_noise.predict(X_copy)
 wrong_classify_indices = []
 for i in range(len(X_copy)):
     if y[i] != label_pred[i]:
