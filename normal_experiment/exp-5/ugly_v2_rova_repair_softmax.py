@@ -4,13 +4,13 @@
 """
 
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import torch
 from deepod.models.tabular import GOAD
-from sklearn import svm
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from lime.lime_tabular import LimeTabularExplainer
@@ -289,16 +289,16 @@ print("加噪测试集中异常值索引：", test_outliers_index_noise)
 print("加噪测试集中的异常值数量：", len(test_outliers_index_noise))
 print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/len(X_test_copy))
 
-# SECTION SVM模型的实现
+# SECTION softmax模型的实现
 
-# subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
+# subsection 原始数据集上训练的softmax模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-# svm_clf = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-svm_model = svm.SVC(class_weight='balanced', probability=True)
-svm_model.fit(X_train, y_train)
-train_label_pred = svm_model.predict(X_train)
-test_label_pred = svm_model.predict(X_test)
+# softmax_clf = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_model = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_model.fit(X_train, y_train)
+train_label_pred = softmax_model.predict(X_train)
+test_label_pred = softmax_model.predict(X_test)
 
 # 使用 np.unique 统计不同标签及其出现次数
 unique_labels, counts = np.unique(train_label_pred, return_counts=True)
@@ -315,25 +315,25 @@ for label, count in zip(unique_labels, counts):
 
 print("*"*100)
 
-# 训练样本中被SVM模型错误分类的样本
+# 训练样本中被softmax模型错误分类的样本
 wrong_classified_train_indices = np.where(y_train != train_label_pred)[0]
-print("训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+print("训练样本中被softmax模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 
-# 测试样本中被SVM模型错误分类的样本
+# 测试样本中被softmax模型错误分类的样本
 wrong_classified_test_indices = np.where(y_test != test_label_pred)[0]
-print("测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+print("测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 
-# 整体数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# 整体数据集D中被softmax模型错误分类的样本
+print("完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
-# subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
+# subsection 加噪数据集上训练的softmax模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-svm_model_noise = svm.SVC(class_weight='balanced', probability=True)
-svm_model_noise.fit(X_train_copy, y_train)
-train_label_pred_noise = svm_model.predict(X_train_copy)
-test_label_pred_noise = svm_model.predict(X_test_copy)
+softmax_model_noise = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_model_noise.fit(X_train_copy, y_train)
+train_label_pred_noise = softmax_model.predict(X_train_copy)
+test_label_pred_noise = softmax_model.predict(X_test_copy)
 
 # 使用 np.unique 统计不同标签及其出现次数
 unique_labels, counts = np.unique(train_label_pred_noise, return_counts=True)
@@ -350,17 +350,17 @@ for label, count in zip(unique_labels, counts):
 
 print("*"*100)
 
-# 加噪训练样本中被SVM模型错误分类的样本
+# 加噪训练样本中被softmax模型错误分类的样本
 wrong_classified_train_indices_noise = np.where(y_train != train_label_pred_noise)[0]
 train_wrong_ratio = len(wrong_classified_train_indices_noise)/len(y_train)
-print("加噪训练样本中被SVM模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
+print("加噪训练样本中被softmax模型错误分类的样本占总加噪训练样本的比例：", len(wrong_classified_train_indices_noise)/len(y_train))
 
-# 加噪测试样本中被SVM模型错误分类的样本
+# 加噪测试样本中被softmax模型错误分类的样本
 wrong_classified_test_indices_noise = np.where(y_test != test_label_pred_noise)[0]
-print("加噪测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
+print("加噪测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices_noise)/len(y_test))
 
-# 整体加噪数据集D中被SVM模型错误分类的样本
-print("完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# 整体加噪数据集D中被softmax模型错误分类的样本
+print("完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
 # 统计训练集和测试集被分错样本中真实标签为1的样本所占的比例
@@ -376,13 +376,13 @@ wrong_test_pred_label = test_label_pred_noise[wrong_test_pred]
 wrong_test_pred_true_label_1 = np.intersect1d(test_label_1, wrong_test_pred)
 
 print("*"*100)
-print("加噪训练样本中被SVM模型错误预测，且该样本真实标签为1的样本，占总分错训练样本的比例：", len(wrong_train_pred_true_label_1)/len(wrong_train_pred_label))
-print("加噪测试样本中被SVM模型错误预测，且该样本真实标签为1的样本，占总分错测试样本的比例：", len(wrong_test_pred_true_label_1)/len(wrong_test_pred_label))
+print("加噪训练样本中被softmax模型错误预测，且该样本真实标签为1的样本，占总分错训练样本的比例：", len(wrong_train_pred_true_label_1)/len(wrong_train_pred_label))
+print("加噪测试样本中被softmax模型错误预测，且该样本真实标签为1的样本，占总分错测试样本的比例：", len(wrong_test_pred_true_label_1)/len(wrong_test_pred_label))
 # print("加噪训练样本中预测错误的标签为：", wrong_train_pred_label)
 # print("加噪测试样本中预测错误的标签为：", wrong_test_pred_label)
 print("*"*100)
 
-# subsection 用多种指标评价加噪数据集中SVM的预测效果
+# subsection 用多种指标评价加噪数据集中softmax的预测效果
 
 """Precision/Recall/F1指标"""
 print("*" * 100)
@@ -392,43 +392,43 @@ print("*" * 100)
 # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 y_test_pred = test_label_pred_noise
-print("SVM模型在加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
-print("SVM模型在加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-print("SVM模型在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+print("softmax模型在加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("softmax模型在加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+print("softmax模型在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 """ROC-AUC指标"""
-# y_test_prob = svm_model.predict_proba(X_test_copy)
+# y_test_prob = softmax_model.predict_proba(X_test_copy)
 # # 对于二分类任务
 # roc_auc_test = roc_auc_score(y_test, y_test_prob[:, 1])  # 使用第二类的概率
-# print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# print("softmax模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标(不支持多分类)"""
 # # 计算预测概率
-# y_scores = svm_model_noise.predict_proba(X_test)
+# y_scores = softmax_model_noise.predict_proba(X_test)
 # # 遍历每个类别
 # pr_scores = []
 # for i in range(y_scores.shape[1]):
 #     precision, recall, _ = precision_recall_curve(y_test, y_scores[:, i])
 #     pr_auc = auc(recall, precision)
 #     pr_scores.append(pr_auc)
-#     print(f"SVM模型在修复测试集中的PR AUC 分数（类 {i}）: {pr_auc}")
+#     print(f"softmax模型在修复测试集中的PR AUC 分数（类 {i}）: {pr_auc}")
 # # 如果需要计算所有类的宏平均 PR 分数
 # macro_pr_score = sum(pr_scores) / len(pr_scores)
-# print("SVM模型在修复测试集中的宏平均AP分数:", macro_pr_score)
+# print("softmax模型在修复测试集中的宏平均AP分数:", macro_pr_score)
 
 """AP指标(不支持多分类)"""
 # # 计算预测概率
-# y_scores = svm_model_noise.predict_proba(X_test)
+# y_scores = softmax_model_noise.predict_proba(X_test)
 # # 计算每个类别的 Average Precision
 # ap_scores = []
 # for i in range(y_scores.shape[1]):
 #     ap_score = average_precision_score(y_test, y_scores[:, i])
 #     ap_scores.append(ap_score)
-#     print(f"SVM模型在修复测试集中的AP分数（类 {i}）: {ap_score}")
+#     print(f"softmax模型在修复测试集中的AP分数（类 {i}）: {ap_score}")
 #
 # # 如果需要计算所有类的宏平均 AP 分数
 # macro_ap_score = sum(ap_scores) / len(ap_scores)
-# print("SVM模型在修复测试集中的宏平均AP分数:", macro_ap_score)
+# print("softmax模型在修复测试集中的宏平均AP分数:", macro_ap_score)
 
 # section 确定有影响力的特征
 # choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
@@ -447,7 +447,7 @@ explainer = LimeTabularExplainer(X_train, feature_names=feature_names, class_nam
                                                    categorical_features=categorical_features,
                                                    categorical_names=categorical_names, kernel_width=3)
 # predict_proba 方法用于分类任务，predict 方法用于回归任务
-predict_fn = lambda x: svm_model.predict_proba(x)
+predict_fn = lambda x: softmax_model.predict_proba(x)
 exp = explainer.explain_instance(X_train[i], predict_fn, num_features=len(feature_names)//2)
 # 获取最具影响力的特征及其权重
 top_features = exp.as_list()
@@ -462,7 +462,7 @@ train_outliers_noise = train_indices[train_outliers_index_noise]
 test_outliers_noise = test_indices[test_outliers_index_noise]
 outliers_noise = np.union1d(train_outliers_noise, test_outliers_noise)
 
-# 在加噪数据集D'上训练的SVM模型，其分类错误的样本在原含噪数据D'中的索引
+# 在加噪数据集D'上训练的softmax模型，其分类错误的样本在原含噪数据D'中的索引
 train_wrong_clf_noise = train_indices[wrong_classified_train_indices_noise]
 test_wrong_clf_noise = test_indices[wrong_classified_test_indices_noise]
 wrong_clf_noise = np.union1d(train_wrong_clf_noise, test_wrong_clf_noise)
@@ -554,7 +554,7 @@ X_copy_inners = X_copy[rows_to_keep]
 y_inners = y[rows_to_keep]
 
 # # section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
-# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
+# #  需要修复的元组通过异常值检测器检测到的元组和softmax分类错误的元组共同确定（取并集）
 #
 # # subsection 尝试修复异常数据的标签
 #
@@ -577,42 +577,42 @@ y_inners = y[rows_to_keep]
 # y_train = y[train_indices]
 # y_test = y[test_indices]
 #
-# # subsection 重新在修复后的数据上训练SVM模型
+# # subsection 重新在修复后的数据上训练softmax模型
 #
-# svm_repair = svm.SVC(class_weight='balanced', probability=True)
-# svm_repair.fit(X_train_copy, y_train)
-# y_train_pred = svm_repair.predict(X_train_copy)
-# y_test_pred = svm_repair.predict(X_test_copy)
+# softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair.fit(X_train_copy, y_train)
+# y_train_pred = softmax_repair.predict(X_train_copy)
+# y_test_pred = softmax_repair.predict(X_test_copy)
 #
 # # 使用 np.unique 统计不同标签及其出现次数
 # unique_labels, counts = np.unique(y_train_pred, return_counts=True)
 #
 # # 打印结果
 # for label, count in zip(unique_labels, counts):
-#     print(f"修复后SVM模型预测的训练集Label: {label}, 预测的Count: {count}")
+#     print(f"修复后softmax模型预测的训练集Label: {label}, 预测的Count: {count}")
 #
 # unique_labels, counts = np.unique(y_test_pred, return_counts=True)
 #
 # # 打印结果
 # for label, count in zip(unique_labels, counts):
-#     print(f"修复后SVM模型预测的测试集Label: {label}, 预测的Count: {count}")
+#     print(f"修复后softmax模型预测的测试集Label: {label}, 预测的Count: {count}")
 #
 # print("*"*100)
 #
 # print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
+# # 训练样本中被softmax模型错误分类的样本
 # wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+# print("加噪标签修复后，训练样本中被softmax模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 #
-# # 测试样本中被SVM模型错误分类的样本
+# # 测试样本中被softmax模型错误分类的样本
 # wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+# print("加噪标签修复后，测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 #
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# # 整体数据集D中被softmax模型错误分类的样本
+# print("加噪标签修复后，完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 #
-# # subsection 用多种指标评价SVM在修复后的数据上的预测效果
+# # subsection 用多种指标评价softmax在修复后的数据上的预测效果
 #
 # """Precision/Recall/F1指标"""
 # print("*" * 100)
@@ -622,33 +622,33 @@ y_inners = y[rows_to_keep]
 # # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 #
-# print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
-# print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-# print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+# print("softmax模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+# print("softmax模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+# print("softmax模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 #
 # """ROC-AUC指标"""
-# # y_test_prob = svm_repair.predict_proba(X_test)
+# # y_test_prob = softmax_repair.predict_proba(X_test)
 # # roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
-# # print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
+# # print("softmax模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 #
 # """PR AUC指标(不支持多分类)"""
 # # # 计算预测概率
-# # y_scores = svm_repair.predict_proba(X_test)
+# # y_scores = softmax_repair.predict_proba(X_test)
 # # # 计算 Precision 和 Recall
 # # precision, recall, _ = precision_recall_curve(y_test, y_scores)
 # # # 计算 PR AUC
 # # pr_auc = auc(recall, precision)
-# # print("SVM模型在修复测试集中的PR AUC 分数:", pr_auc)
+# # print("softmax模型在修复测试集中的PR AUC 分数:", pr_auc)
 # #
 # """AP指标(不支持多分类)"""
 # # # 计算预测概率
-# # y_scores = svm_repair.predict_proba(X_test)
+# # y_scores = softmax_repair.predict_proba(X_test)
 # # # 计算 Average Precision
 # # ap_score = average_precision_score(y_test, y_scores)
-# # print("SVM模型在修复测试集中的AP分数:", ap_score)
+# # print("softmax模型在修复测试集中的AP分数:", ap_score)
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）
-# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）(修复效果由于监督/无监督基准)
+# #  需要修复的元组通过异常值检测器检测到的元组和softmax分类错误的元组共同确定（取并集）(修复效果由于监督/无监督基准)
 #
 # # subsection 确定有影响力特征中的离群值并采用均值修复
 # for i in range(X_copy.shape[1]):
@@ -662,25 +662,25 @@ y_inners = y[rows_to_keep]
 # X_train_copy = X_copy[train_indices]
 # X_test_copy = X_copy[test_indices]
 #
-# # subsection 重新在修复后的数据上训练SVM模型
+# # subsection 重新在修复后的数据上训练softmax模型
 #
-# # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-# svm_repair = svm.SVC(class_weight='balanced', probability=True)
-# svm_repair.fit(X_train_copy, y_train)
-# y_train_pred = svm_repair.predict(X_train_copy)
-# y_test_pred = svm_repair.predict(X_test_copy)
+# # softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair.fit(X_train_copy, y_train)
+# y_train_pred = softmax_repair.predict(X_train_copy)
+# y_test_pred = softmax_repair.predict(X_test_copy)
 #
 # print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
+# # 训练样本中被softmax模型错误分类的样本
 # wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+# print("加噪标签修复后，训练样本中被softmax模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 #
-# # 测试样本中被SVM模型错误分类的样本
+# # 测试样本中被softmax模型错误分类的样本
 # wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+# print("加噪标签修复后，测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 #
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# # 整体数据集D中被softmax模型错误分类的样本
+# print("加噪标签修复后，完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # # section 方案三：对X_copy中需要修复的元组借助knn进行修复，choice1 将异常元组中的元素直接设置为nan(修复误差太大，修复后准确性下降)
@@ -703,29 +703,29 @@ y_inners = y[rows_to_keep]
 # X_train_copy = X_copy[train_indices]
 # X_test_copy = X_copy[test_indices]
 #
-# # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-# svm_repair = svm.SVC(class_weight='balanced', probability=True)
-# svm_repair.fit(X_train_copy, y_train)
-# y_train_pred = svm_repair.predict(X_train_copy)
-# y_test_pred = svm_repair.predict(X_test_copy)
+# # softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair.fit(X_train_copy, y_train)
+# y_train_pred = softmax_repair.predict(X_train_copy)
+# y_test_pred = softmax_repair.predict(X_test_copy)
 #
 # print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
+# # 训练样本中被softmax模型错误分类的样本
 # wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("借助knn修复需要修复的样本后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：",
+# print("借助knn修复需要修复的样本后，训练样本中被softmax模型错误分类的样本占总训练样本的比例：",
 #       len(wrong_classified_train_indices)/len(y_train))
 #
-# # 测试样本中被SVM模型错误分类的样本
+# # 测试样本中被softmax模型错误分类的样本
 # wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("借助knn修复需要修复的样本后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：",
+# print("借助knn修复需要修复的样本后，测试样本中被softmax模型错误分类的样本占总测试样本的比例：",
 #       len(wrong_classified_test_indices)/len(y_test))
 #
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("借助knn修复需要修复的样本后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# # 整体数据集D中被softmax模型错误分类的样本
+# print("借助knn修复需要修复的样本后，完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
 #       /(len(y_train) + len(y_test)))
 
-# # section 方案四：将X_copy中训练集和测试集需要修复的元组直接删除，在去除后的训练集上训练svm模型
+# # section 方案四：将X_copy中训练集和测试集需要修复的元组直接删除，在去除后的训练集上训练softmax模型
 #
 # set_X_copy_repair = set(X_copy_repair_indices)
 #
@@ -745,27 +745,27 @@ y_inners = y[rows_to_keep]
 # X_test_copy_repair = X_copy[test_indices]
 # y_test_copy_repair = y[test_indices]
 #
-# # subsection 重新在修复后的数据上训练SVM模型
+# # subsection 重新在修复后的数据上训练softmax模型
 #
-# # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-# svm_repair = svm.SVC(class_weight='balanced', probability=True)
-# svm_repair.fit(X_train_copy_repair, y_train_copy_repair)
-# y_train_pred = svm_repair.predict(X_train_copy_repair)
-# y_test_pred = svm_repair.predict(X_test_copy_repair)
+# # softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair.fit(X_train_copy_repair, y_train_copy_repair)
+# y_train_pred = softmax_repair.predict(X_train_copy_repair)
+# y_test_pred = softmax_repair.predict(X_test_copy_repair)
 #
 # print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
+# # 训练样本中被softmax模型错误分类的样本
 # wrong_classified_train_indices = np.where(y_train_copy_repair != y_train_pred)[0]
-# print("删除需要修复的样本后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：",
+# print("删除需要修复的样本后，训练样本中被softmax模型错误分类的样本占总训练样本的比例：",
 #       len(wrong_classified_train_indices)/len(y_train_copy_repair))
 #
-# # 测试样本中被SVM模型错误分类的样本
+# # 测试样本中被softmax模型错误分类的样本
 # wrong_classified_test_indices = np.where(y_test_copy_repair != y_test_pred)[0]
-# print("删除需要修复的样本后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：",
+# print("删除需要修复的样本后，测试样本中被softmax模型错误分类的样本占总测试样本的比例：",
 #       len(wrong_classified_test_indices)/len(y_test_copy_repair))
 #
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("删除需要修复的样本后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# # 整体数据集D中被softmax模型错误分类的样本
+# print("删除需要修复的样本后，完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
 #       /(len(y_train_copy_repair) + len(y_test_copy_repair)))
 
@@ -799,38 +799,38 @@ X_test_copy = X_copy[test_indices]
 y_train = y[train_indices]
 y_test = y[test_indices]
 
-# subsection 重新在修复后的数据上训练SVM模型
+# subsection 重新在修复后的数据上训练softmax模型
 
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-svm_repair = svm.SVC(class_weight='balanced', probability=True)
-svm_repair.fit(X_train_copy, y_train)
-y_train_pred = svm_repair.predict(X_train_copy)
-y_test_pred = svm_repair.predict(X_test_copy)
+# softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_repair.fit(X_train_copy, y_train)
+y_train_pred = softmax_repair.predict(X_train_copy)
+y_test_pred = softmax_repair.predict(X_test_copy)
 
 # 使用 np.unique 统计不同标签及其出现次数
 unique_labels, counts = np.unique(y_train_pred, return_counts=True)
 
 # 打印结果
 for label, count in zip(unique_labels, counts):
-    print(f"SVM在修复后训练集上预测Label: {label}, 预测Count: {count}")
+    print(f"softmax在修复后训练集上预测Label: {label}, 预测Count: {count}")
 
 unique_labels, counts = np.unique(y_test_pred, return_counts=True)
 
 # 打印结果
 for label, count in zip(unique_labels, counts):
-    print(f"SVM在修复后训练集上预测Label: {label}, 预测Count: {count}")
+    print(f"softmax在修复后训练集上预测Label: {label}, 预测Count: {count}")
 
 print("*" * 100)
-# 训练样本中被SVM模型错误分类的样本
+# 训练样本中被softmax模型错误分类的样本
 wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+print("加噪标签修复后，训练样本中被softmax模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 
-# 测试样本中被SVM模型错误分类的样本
+# 测试样本中被softmax模型错误分类的样本
 wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+print("加噪标签修复后，测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 
-# 整体数据集D中被SVM模型错误分类的样本
-print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# 整体数据集D中被softmax模型错误分类的样本
+print("加噪标签修复后，完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 """Precision/Recall/F1指标"""
@@ -841,9 +841,9 @@ print("*" * 100)
 # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 
-print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
-print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+print("softmax模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("softmax模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+print("softmax模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
 # # section 方案六：训练机器学习模型(随机森林模型)，修复特征值（修复时间很久，慎用）
 # #  依次将有影响力的特征作为要修复的标签（连续特征对应回归模型，分类特征对应分类模型），使用其他特征参与训练
@@ -873,23 +873,23 @@ print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test
 # y_train = y[train_indices]
 # y_test = y[test_indices]
 #
-# # subsection 重新在修复后的数据上训练SVM模型
+# # subsection 重新在修复后的数据上训练softmax模型
 #
-# # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
-# svm_repair = svm.SVC(class_weight='balanced', probability=True)
-# svm_repair.fit(X_train_copy, y_train)
-# y_train_pred = svm_repair.predict(X_train_copy)
-# y_test_pred = svm_repair.predict(X_test_copy)
+# # softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair.fit(X_train_copy, y_train)
+# y_train_pred = softmax_repair.predict(X_train_copy)
+# y_test_pred = softmax_repair.predict(X_test_copy)
 #
 # print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
+# # 训练样本中被softmax模型错误分类的样本
 # wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+# print("加噪标签修复后，训练样本中被softmax模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
 #
-# # 测试样本中被SVM模型错误分类的样本
+# # 测试样本中被softmax模型错误分类的样本
 # wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+# print("加噪标签修复后，测试样本中被softmax模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
 #
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+# # 整体数据集D中被softmax模型错误分类的样本
+# print("加噪标签修复后，完整数据集D中被softmax模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
