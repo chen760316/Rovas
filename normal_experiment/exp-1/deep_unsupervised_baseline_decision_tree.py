@@ -208,7 +208,7 @@ print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/
 # subsection 原始数据集上训练的decision tree模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-dt_model = tree.DecisionTreeClassifier(class_weight='balance')
+dt_model = tree.DecisionTreeClassifier(class_weight='balanced')
 dt_model.fit(X_train, y_train)
 train_label_pred = dt_model.predict(X_train)
 test_label_pred = dt_model.predict(X_test)
@@ -228,7 +228,7 @@ print("完整数据集D中被decision tree模型错误分类的样本占总完�
 # subsection 加噪数据集上训练的decision tree模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-dt_model_noise = tree.DecisionTreeClassifier(class_weight='balance')
+dt_model_noise = tree.DecisionTreeClassifier(class_weight='balanced')
 dt_model_noise.fit(X_train_copy, y_train)
 train_label_pred_noise = dt_model_noise.predict(X_train_copy)
 test_label_pred_noise = dt_model_noise.predict(X_test_copy)
@@ -325,7 +325,7 @@ y_test = y[test_indices]
 
 # subsection 重新在修复后的数据上训练decision tree模型
 
-dt_repair = tree.DecisionTreeClassifier(class_weight='balance')
+dt_repair = tree.DecisionTreeClassifier(class_weight='balanced')
 dt_repair.fit(X_train_copy, y_train)
 y_train_pred = dt_repair.predict(X_train_copy)
 y_test_pred = dt_repair.predict(X_test_copy)

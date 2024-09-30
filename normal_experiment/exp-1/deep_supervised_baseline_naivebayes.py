@@ -350,41 +350,41 @@ top_feature_names = [re.search(r'([a-zA-Z_]\w*)', feature[0]).group(0).strip() f
 top_k_indices = [feature_names.index(name) for name in top_feature_names]
 print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices))
 
-# # section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
-# #  需要修复的元组通过异常值检测器检测到的元组和Naive BayesM分类错误的元组共同确定（取并集）
-#
-# # subsection 尝试修复异常数据的标签
-#
-# knn = KNeighborsClassifier(n_neighbors=3)
-# knn.fit(X_copy_inners, y_inners)
-#
-# # 预测异常值
-# y_pred = knn.predict(X_copy_repair)
-#
-# # 替换异常值
-# y[X_copy_repair_indices] = y_pred
-# y_train = y[train_indices]
-# y_test = y[test_indices]
-#
-# # subsection 重新在修复后的数据上训练Naive Bayes模型
-#
-# nb_repair = GaussianNB()
-# nb_repair.fit(X_train_copy, y_train)
-# y_train_pred = nb_repair.predict(X_train_copy)
-# y_test_pred = nb_repair.predict(X_test_copy)
-#
-# print("*" * 100)
-# # 训练样本中被Naive Bayes模型错误分类的样本
-# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被Naive Bayes模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-#
-# # 测试样本中被Naive Bayes模型错误分类的样本
-# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被Naive Bayes模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-#
-# # 整体数据集D中被Naive Bayes模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被Naive Bayes模型错误分类的样本占总完整数据的比例：",
-#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+# section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
+#  需要修复的元组通过异常值检测器检测到的元组和Naive BayesM分类错误的元组共同确定（取并集）
+
+# subsection 尝试修复异常数据的标签
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_copy_inners, y_inners)
+
+# 预测异常值
+y_pred = knn.predict(X_copy_repair)
+
+# 替换异常值
+y[X_copy_repair_indices] = y_pred
+y_train = y[train_indices]
+y_test = y[test_indices]
+
+# subsection 重新在修复后的数据上训练Naive Bayes模型
+
+nb_repair = GaussianNB()
+nb_repair.fit(X_train_copy, y_train)
+y_train_pred = nb_repair.predict(X_train_copy)
+y_test_pred = nb_repair.predict(X_test_copy)
+
+print("*" * 100)
+# 训练样本中被Naive Bayes模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
+print("加噪标签修复后，训练样本中被Naive Bayes模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+
+# 测试样本中被Naive Bayes模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
+print("加噪标签修复后，测试样本中被Naive Bayes模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+
+# 整体数据集D中被Naive Bayes模型错误分类的样本
+print("加噪标签修复后，完整数据集D中被Naive Bayes模型错误分类的样本占总完整数据的比例：",
+      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）
 # #  需要修复的元组通过异常值检测器检测到的元组和Naive Bayes分类错误的元组共同确定（取并集）
@@ -421,47 +421,47 @@ print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices
 # print("加噪标签修复后，完整数据集D中被Naive Bayes模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
-# section 方案三：对X_copy中需要修复的元组借助knn进行修复，choice1 将异常元组中的元素直接设置为nan(修复误差太大，修复后准确性下降)
-#  choice2 仅将有影响力特征上的元素设置为np.nan
-
-# # choice 将异常元组中的所有元素设置为nan
+# # section 方案三：对X_copy中需要修复的元组借助knn进行修复，choice1 将异常元组中的元素直接设置为nan(修复误差太大，修复后准确性下降)
+# #  choice2 仅将有影响力特征上的元素设置为np.nan
+#
+# # # choice 将异常元组中的所有元素设置为nan
+# # for i in range(X_copy.shape[1]):
+# #     X_copy[X_copy_repair_indices, i] = np.nan
+#
+# # choice 仅将异常元组中的有影响力的元素设置为nan
 # for i in range(X_copy.shape[1]):
-#     X_copy[X_copy_repair_indices, i] = np.nan
-
-# choice 仅将异常元组中的有影响力的元素设置为nan
-for i in range(X_copy.shape[1]):
-    if i in top_k_indices:
-        X_copy[X_copy_repair_indices, i] = np.nan
-
-# choice 使用knn修复所有被标记为nan的异常特征
-# 创建 KNN Imputer 对象
-knn_imputer = KNNImputer(n_neighbors=5)
-
-# 使用 KNN 算法填补异常特征
-X_copy = knn_imputer.fit_transform(X_copy)
-X_train_copy = X_copy[train_indices]
-X_test_copy = X_copy[test_indices]
-
-nb_repair = GaussianNB()
-nb_repair.fit(X_train_copy, y_train)
-y_train_pred = nb_repair.predict(X_train_copy)
-y_test_pred = nb_repair.predict(X_test_copy)
-
-print("*" * 100)
-# 训练样本中被Naive Bayes模型错误分类的样本
-wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-print("借助knn修复需要修复的样本后，训练样本中被Naive Bayes模型错误分类的样本占总训练样本的比例：",
-      len(wrong_classified_train_indices)/len(y_train))
-
-# 测试样本中被Naive Bayes模型错误分类的样本
-wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-print("借助knn修复需要修复的样本后，测试样本中被Naive Bayes模型错误分类的样本占总测试样本的比例：",
-      len(wrong_classified_test_indices)/len(y_test))
-
-# 整体数据集D中被Naive Bayes模型错误分类的样本
-print("借助knn修复需要修复的样本后，完整数据集D中被Naive Bayes模型错误分类的样本占总完整数据的比例：",
-      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
-      /(len(y_train) + len(y_test)))
+#     if i in top_k_indices:
+#         X_copy[X_copy_repair_indices, i] = np.nan
+#
+# # choice 使用knn修复所有被标记为nan的异常特征
+# # 创建 KNN Imputer 对象
+# knn_imputer = KNNImputer(n_neighbors=5)
+#
+# # 使用 KNN 算法填补异常特征
+# X_copy = knn_imputer.fit_transform(X_copy)
+# X_train_copy = X_copy[train_indices]
+# X_test_copy = X_copy[test_indices]
+#
+# nb_repair = GaussianNB()
+# nb_repair.fit(X_train_copy, y_train)
+# y_train_pred = nb_repair.predict(X_train_copy)
+# y_test_pred = nb_repair.predict(X_test_copy)
+#
+# print("*" * 100)
+# # 训练样本中被Naive Bayes模型错误分类的样本
+# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
+# print("借助knn修复需要修复的样本后，训练样本中被Naive Bayes模型错误分类的样本占总训练样本的比例：",
+#       len(wrong_classified_train_indices)/len(y_train))
+#
+# # 测试样本中被Naive Bayes模型错误分类的样本
+# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
+# print("借助knn修复需要修复的样本后，测试样本中被Naive Bayes模型错误分类的样本占总测试样本的比例：",
+#       len(wrong_classified_test_indices)/len(y_test))
+#
+# # 整体数据集D中被Naive Bayes模型错误分类的样本
+# print("借助knn修复需要修复的样本后，完整数据集D中被Naive Bayes模型错误分类的样本占总完整数据的比例：",
+#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
+#       /(len(y_train) + len(y_test)))
 
 # section 方案四：将X_copy中训练集和测试集需要修复的元组直接删除，在去除后的训练集上训练Naive Bayes模型
 

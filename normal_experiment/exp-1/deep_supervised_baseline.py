@@ -256,7 +256,7 @@ print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/
 # subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
 svm_model.fit(X_train, y_train)
 train_label_pred = svm_model.predict(X_train)
 test_label_pred = svm_model.predict(X_test)
@@ -276,7 +276,7 @@ print("完整数据集D中被SVM模型错误分类的样本占总完整数据的
 # subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
 svm_model_noise.fit(X_train_copy, y_train)
 train_label_pred_noise = svm_model_noise.predict(X_train_copy)
 test_label_pred_noise = svm_model_noise.predict(X_test_copy)
@@ -352,41 +352,41 @@ top_feature_names = [re.search(r'([a-zA-Z_]\w*)', feature[0]).group(0).strip() f
 top_k_indices = [feature_names.index(name) for name in top_feature_names]
 # print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices))
 
-# # section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
-# #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
-#
-# # subsection 尝试修复异常数据的标签
-#
-# knn = KNeighborsClassifier(n_neighbors=3)
-# knn.fit(X_copy_inners, y_inners)
-#
-# # 预测异常值
-# y_pred = knn.predict(X_copy_repair)
-#
-# # 替换异常值
-# y[X_copy_repair_indices] = y_pred
-# y_train = y[train_indices]
-# y_test = y[test_indices]
-#
-# # subsection 重新在修复后的数据上训练SVM模型
-#
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
-# svm_repair.fit(X_train_copy, y_train)
-# y_train_pred = svm_repair.predict(X_train_copy)
-# y_test_pred = svm_repair.predict(X_test_copy)
-#
-# print("*" * 100)
-# # 训练样本中被SVM模型错误分类的样本
-# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-#
-# # 测试样本中被SVM模型错误分类的样本
-# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-#
-# # 整体数据集D中被SVM模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
-#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+# section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
+#  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
+
+# subsection 尝试修复异常数据的标签
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_copy_inners, y_inners)
+
+# 预测异常值
+y_pred = knn.predict(X_copy_repair)
+
+# 替换异常值
+y[X_copy_repair_indices] = y_pred
+y_train = y[train_indices]
+y_test = y[test_indices]
+
+# subsection 重新在修复后的数据上训练SVM模型
+
+svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
+svm_repair.fit(X_train_copy, y_train)
+y_train_pred = svm_repair.predict(X_train_copy)
+y_test_pred = svm_repair.predict(X_test_copy)
+
+print("*" * 100)
+# 训练样本中被SVM模型错误分类的样本
+wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
+print("加噪标签修复后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+
+# 测试样本中被SVM模型错误分类的样本
+wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
+print("加噪标签修复后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+
+# 整体数据集D中被SVM模型错误分类的样本
+print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）
 # #  需要修复的元组通过异常值检测器检测到的元组和SVM分类错误的元组共同确定（取并集）
@@ -405,7 +405,7 @@ top_k_indices = [feature_names.index(name) for name in top_feature_names]
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -444,7 +444,7 @@ top_k_indices = [feature_names.index(name) for name in top_feature_names]
 # X_train_copy = X_copy[train_indices]
 # X_test_copy = X_copy[test_indices]
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -465,48 +465,48 @@ top_k_indices = [feature_names.index(name) for name in top_feature_names]
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
 #       /(len(y_train) + len(y_test)))
 
-# section 方案四：将X_copy中训练集和测试集需要修复的元组直接删除，在去除后的训练集上训练svm模型
-
-set_X_copy_repair = set(X_copy_repair_indices)
-
-# 计算差集，去除训练集中需要修复的的元素
-set_train_indices = set(train_indices)
-remaining_train_indices = list(set_train_indices - set_X_copy_repair)
-X_train_copy_repair = X_copy[remaining_train_indices]
-y_train_copy_repair = y[remaining_train_indices]
-
-# # choice 计算差集，去除测试集中需要修复的的元素
-# set_test_indices = set(test_indices)
-# remaining_test_indices = list(set_test_indices - set_X_copy_repair)
-# X_test_copy_repair = X_copy[remaining_test_indices]
-# y_test_copy_repair = y[remaining_test_indices]
-
-# choice 不删除测试集中的离群样本
-X_test_copy_repair = X_copy[test_indices]
-y_test_copy_repair = y[test_indices]
-
-# subsection 重新在修复后的数据上训练SVM模型
-
-svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
-svm_repair.fit(X_train_copy_repair, y_train_copy_repair)
-y_train_pred = svm_repair.predict(X_train_copy_repair)
-y_test_pred = svm_repair.predict(X_test_copy_repair)
-
-print("*" * 100)
-# 训练样本中被SVM模型错误分类的样本
-wrong_classified_train_indices = np.where(y_train_copy_repair != y_train_pred)[0]
-print("删除需要修复的样本后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：",
-      len(wrong_classified_train_indices)/len(y_train_copy_repair))
-
-# 测试样本中被SVM模型错误分类的样本
-wrong_classified_test_indices = np.where(y_test_copy_repair != y_test_pred)[0]
-print("删除需要修复的样本后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：",
-      len(wrong_classified_test_indices)/len(y_test_copy_repair))
-
-# 整体数据集D中被SVM模型错误分类的样本
-print("删除需要修复的样本后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
-      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
-      /(len(y_train_copy_repair) + len(y_test_copy_repair)))
+# # section 方案四：将X_copy中训练集和测试集需要修复的元组直接删除，在去除后的训练集上训练svm模型
+#
+# set_X_copy_repair = set(X_copy_repair_indices)
+#
+# # 计算差集，去除训练集中需要修复的的元素
+# set_train_indices = set(train_indices)
+# remaining_train_indices = list(set_train_indices - set_X_copy_repair)
+# X_train_copy_repair = X_copy[remaining_train_indices]
+# y_train_copy_repair = y[remaining_train_indices]
+#
+# # # choice 计算差集，去除测试集中需要修复的的元素
+# # set_test_indices = set(test_indices)
+# # remaining_test_indices = list(set_test_indices - set_X_copy_repair)
+# # X_test_copy_repair = X_copy[remaining_test_indices]
+# # y_test_copy_repair = y[remaining_test_indices]
+#
+# # choice 不删除测试集中的离群样本
+# X_test_copy_repair = X_copy[test_indices]
+# y_test_copy_repair = y[test_indices]
+#
+# # subsection 重新在修复后的数据上训练SVM模型
+#
+# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
+# svm_repair.fit(X_train_copy_repair, y_train_copy_repair)
+# y_train_pred = svm_repair.predict(X_train_copy_repair)
+# y_test_pred = svm_repair.predict(X_test_copy_repair)
+#
+# print("*" * 100)
+# # 训练样本中被SVM模型错误分类的样本
+# wrong_classified_train_indices = np.where(y_train_copy_repair != y_train_pred)[0]
+# print("删除需要修复的样本后，训练样本中被SVM模型错误分类的样本占总训练样本的比例：",
+#       len(wrong_classified_train_indices)/len(y_train_copy_repair))
+#
+# # 测试样本中被SVM模型错误分类的样本
+# wrong_classified_test_indices = np.where(y_test_copy_repair != y_test_pred)[0]
+# print("删除需要修复的样本后，测试样本中被SVM模型错误分类的样本占总测试样本的比例：",
+#       len(wrong_classified_test_indices)/len(y_test_copy_repair))
+#
+# # 整体数据集D中被SVM模型错误分类的样本
+# print("删除需要修复的样本后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
+#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
+#       /(len(y_train_copy_repair) + len(y_test_copy_repair)))
 
 
 # # section 方案五：训练机器学习模型（随机森林模型），修复标签值
@@ -539,7 +539,7 @@ print("删除需要修复的样本后，完整数据集D中被SVM模型错误分
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -586,7 +586,7 @@ print("删除需要修复的样本后，完整数据集D中被SVM模型错误分
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True, class_weight='balanced')
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
