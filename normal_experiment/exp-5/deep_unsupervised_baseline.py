@@ -246,7 +246,7 @@ print("加噪测试集中的异常值比例：", len(test_outliers_index_noise)/
 # subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model = svm.SVC(class_weight='balanced', probability=True)
 svm_model.fit(X_train, y_train)
 train_label_pred = svm_model.predict(X_train)
 test_label_pred = svm_model.predict(X_test)
@@ -266,7 +266,7 @@ print("完整数据集D中被SVM模型错误分类的样本占总完整数据的
 # subsection 加噪数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-svm_model_noise = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_model_noise = svm.SVC(class_weight='balanced', probability=True)
 svm_model_noise.fit(X_train_copy, y_train)
 train_label_pred_noise = svm_model_noise.predict(X_train_copy)
 test_label_pred_noise = svm_model_noise.predict(X_test_copy)
@@ -412,7 +412,7 @@ y_test = y[test_indices]
 
 # subsection 重新在修复后的数据上训练SVM模型
 
-svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+svm_repair = svm.SVC(class_weight='balanced', probability=True)
 svm_repair.fit(X_train_copy, y_train)
 y_train_pred = svm_repair.predict(X_train_copy)
 y_test_pred = svm_repair.predict(X_test_copy)
@@ -483,7 +483,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(class_weight='balanced', probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -522,7 +522,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 # X_train_copy = X_copy[train_indices]
 # X_test_copy = X_copy[test_indices]
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(class_weight='balanced', probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -565,7 +565,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(class_weight='balanced', probability=True)
 # svm_repair.fit(X_train_copy_repair, y_train_copy_repair)
 # y_train_pred = svm_repair.predict(X_train_copy_repair)
 # y_test_pred = svm_repair.predict(X_test_copy_repair)
@@ -616,7 +616,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(class_weight='balanced', probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)
@@ -663,7 +663,7 @@ print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
 #
 # # subsection 重新在修复后的数据上训练SVM模型
 #
-# svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+# svm_repair = svm.SVC(class_weight='balanced', probability=True)
 # svm_repair.fit(X_train_copy, y_train)
 # y_train_pred = svm_repair.predict(X_train_copy)
 # y_test_pred = svm_repair.predict(X_test_copy)

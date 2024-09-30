@@ -189,8 +189,7 @@ with memory_timer():
     i = len(feature_names)
     np.random.seed(1)
     categorical_names = {}
-    # svm_model = svm.SVC(kernel='linear', C=1.0, probability=True)
-    svm_model = svm.SVC(probability=True)
+    svm_model = svm.SVC(class_weight='balanced', probability=True)
     svm_model.fit(X_train_copy, y_train)
 
     for feature in categorical_features:
@@ -233,8 +232,7 @@ with memory_timer():
     # subsection 原始数据集上训练的SVM模型在训练集和测试集中分错的样本比例
 
     print("*" * 100)
-    # svm_clf = svm.SVC(kernel='linear', C=1.0, probability=True)
-    svm_clf = svm.SVC(probability=True)
+    svm_clf = svm.SVC(class_weight='balanced', probability=True)
     svm_clf.fit(X_train, y_train)
     train_label_pred = svm_clf.predict(X_train)
     test_label_pred = svm_clf.predict(X_test)
@@ -508,8 +506,7 @@ with memory_timer():
     # # subsection 重新在修复后的数据上训练SVM模型
     #
     # print("*"*100)
-    # # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
-    # svm_repair = svm.SVC(probability=True)
+    # svm_repair = svm.SVC(class_weight='balanced', probability=True)
     # svm_repair.fit(X_train_copy, y_train)
     # y_train_pred = svm_repair.predict(X_train_copy)
     # y_test_pred = svm_repair.predict(X_test_copy)
@@ -592,7 +589,7 @@ with memory_timer():
     #
     # # subsection 重新在修复后的数据上训练SVM模型
     #
-    # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+    # svm_repair = svm.SVC(class_weight='balanced', probability=True)
     # svm_repair.fit(X_train_copy, y_train)
     # y_train_pred = svm_repair.predict(X_train_copy)
     # y_test_pred = svm_repair.predict(X_test_copy)
@@ -630,7 +627,7 @@ with memory_timer():
     # X_train_copy = X_copy[train_indices]
     # X_test_copy = X_copy[test_indices]
     #
-    # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+    # svm_repair = svm.SVC(class_weight='balanced', probability=True)
     # svm_repair.fit(X_train_copy, y_train)
     # y_train_pred = svm_repair.predict(X_train_copy)
     # y_test_pred = svm_repair.predict(X_test_copy)
@@ -673,7 +670,7 @@ with memory_timer():
     #
     # # subsection 重新在修复后的数据上训练SVM模型
     #
-    # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+    # svm_repair = svm.SVC(class_weight='balanced', probability=True)
     # svm_repair.fit(X_train_copy_repair, y_train_copy_repair)
     # y_train_pred = svm_repair.predict(X_train_copy_repair)
     # y_test_pred = svm_repair.predict(X_test_copy_repair)
@@ -723,7 +720,7 @@ with memory_timer():
     #
     # # subsection 重新在修复后的数据上训练SVM模型
     #
-    # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+    # svm_repair = svm.SVC(class_weight='balanced', probability=True)
     # svm_repair.fit(X_train_copy, y_train)
     # y_train_pred = svm_repair.predict(X_train_copy)
     # y_test_pred = svm_repair.predict(X_test_copy)
@@ -771,7 +768,7 @@ with memory_timer():
     #
     # # subsection 重新在修复后的数据上训练SVM模型
     #
-    # svm_repair = svm.SVC(kernel='linear', C=1.0, probability=True)
+    # svm_repair = svm.SVC(class_weight='balanced', probability=True)
     # svm_repair.fit(X_train_copy, y_train)
     # y_train_pred = svm_repair.predict(X_train_copy)
     # y_test_pred = svm_repair.predict(X_test_copy)

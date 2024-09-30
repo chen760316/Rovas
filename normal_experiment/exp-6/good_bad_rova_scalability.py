@@ -309,7 +309,7 @@ with memory_timer():
     # choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
     import re
 
-    svm_model = svm.SVC(probability=True)
+    svm_model = svm.SVC(class_weight='balanced', probability=True)
     svm_model.fit(X_train, y_train)
     # 特征数取4或6
     i = len(feature_names)
@@ -830,7 +830,7 @@ with memory_timer():
     # X_train_split = X_train[mask]
     # y_train_split = y_train[mask]
     # # 重新训练SVM模型
-    # svm_model_split = svm.SVC()
+    # svm_model_split = svm.SVC(class_weight='balanced', probability=True)
     # svm_model_split.fit(X_train_split, y_train_split)
     # print("*" * 100)
     # print("去除异常值中分类错误的样本后的训练集SVM分类准确度：" + str(accuracy_score(y_train_split, svm_model_split.predict(X_train_split))))
@@ -842,7 +842,7 @@ with memory_timer():
     # mask_h[anomalies] = False
     # X_train_h = X_train[mask_h]
     # y_train_h = y_train[mask_h]
-    # svm_model_h = svm.SVC()
+    # svm_model_h = svm.SVC(class_weight='balanced', probability=True)
     # svm_model_h.fit(X_train_h, y_train_h)
     # print("*" * 100)
     # print("去除损失高于阈值的样本后的训练集SVM分类准确度：" + str(accuracy_score(y_train_h, svm_model_h.predict(X_train_h))))
@@ -854,7 +854,7 @@ with memory_timer():
     # mask_o[train_outliers_index] = False
     # X_train_o = X_train[mask_o]
     # y_train_o = y_train[mask_o]
-    # svm_model_o = svm.SVC()
+    # svm_model_o = svm.SVC(class_weight='balanced', probability=True)
     # svm_model_o.fit(X_train_o, y_train_o)
     # print("*" * 100)
     # print("去除判定为异常的样本后的训练集SVM分类准确度：" + str(accuracy_score(y_train_o, svm_model_o.predict(X_train_o))))
