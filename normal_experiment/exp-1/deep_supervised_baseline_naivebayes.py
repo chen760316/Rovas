@@ -20,6 +20,10 @@ from deepod.models import REPEN, SLAD, ICL, NeuTraL
 from deepod.models.tabular import DevNet
 from deepod.models import DeepSAD, RoSAS, PReNet
 import re
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import precision_recall_curve, auc
+from sklearn.metrics import average_precision_score
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -365,6 +369,23 @@ print("加噪测试样本中被Naive Bayes模型错误分类的样本占总测�
 print("完整数据集D中被Naive Bayes模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
 
+# section 修复前实验指标测定
+
+"""Accuracy指标"""
+print("*" * 100)
+print("分类器在修复前的加噪测试集中的分类准确度：" + str(accuracy_score(y_test, test_label_pred_noise)))
+
+"""Precision/Recall/F1指标"""
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+
+print("分类器在修复前的加噪测试集中的分类精确度：" + str(precision_score(y_test, test_label_pred_noise, average='weighted')))
+print("分类器在修复前的加噪测试集中的分类召回率：" + str(recall_score(y_test, test_label_pred_noise, average='weighted')))
+print("分类器在修复前的加噪测试集中的分类F1分数：" + str(f1_score(y_test, test_label_pred_noise, average='weighted')))
+
 # section 识别X_copy中需要修复的元组
 
 # 异常检测器检测出的训练集和测试集中的异常值在原含噪数据D'中的索引
@@ -675,3 +696,20 @@ print("加噪标签修复后，完整数据集D中被Naive Bayes模型错误分�
 # # 整体数据集D中被Naive Bayes模型错误分类的样本
 # print("加噪标签修复后，完整数据集D中被Naive Bayes模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# section 修复后实验指标测定
+
+"""Accuracy指标"""
+print("*" * 100)
+print("分类器在修复后的加噪测试集中的分类准确度：" + str(accuracy_score(y_test, y_test_pred)))
+
+"""Precision/Recall/F1指标"""
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+
+print("分类器在修复后的加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("分类器在修复后的加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))

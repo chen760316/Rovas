@@ -16,6 +16,10 @@ from sklearn.impute import KNNImputer
 from lime.lime_tabular import LimeTabularExplainer
 from deepod.models.tabular import PReNet
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import precision_recall_curve, auc
+from sklearn.metrics import average_precision_score
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -289,6 +293,7 @@ print("*" * 100)
 dt_model = tree.DecisionTreeClassifier(class_weight='balanced')
 dt_model.fit(X_train, y_train)
 train_label_pred = dt_model.predict(X_train)
+test_label_pred = dt_model.predict(X_test)
 
 # 训练样本中被decision tree模型错误分类的样本
 wrong_classified_train_indices = np.where(y_train != dt_model.predict(X_train))[0]
@@ -307,6 +312,7 @@ print("*" * 100)
 dt_model_noise = tree.DecisionTreeClassifier(class_weight='balanced')
 dt_model_noise.fit(X_train_copy, y_train)
 train_label_pred_noise = dt_model_noise.predict(X_train_copy)
+test_label_pred_noise = dt_model_noise.predict(X_test_copy)
 
 # 加噪训练样本中被decision tree模型错误分类的样本
 wrong_classified_train_indices_noise = np.where(y_train != dt_model_noise.predict(X_train_copy))[0]
@@ -318,6 +324,23 @@ print("加噪测试样本中被decision tree模型错误分类的样本占总测
 
 # 整体加噪数据集D中被decision tree模型错误分类的样本
 print("完整数据集D中被decision tree模型错误分类的样本占总完整数据的比例：", (len(wrong_classified_train_indices_noise) + len(wrong_classified_test_indices_noise))/(len(y_train) + len(y_test)))
+
+# section 修复前实验指标测定
+
+"""Accuracy指标"""
+print("*" * 100)
+print("分类器在修复前的加噪测试集中的分类准确度：" + str(accuracy_score(y_test, test_label_pred_noise)))
+
+"""Precision/Recall/F1指标"""
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+
+print("分类器在修复前的加噪测试集中的分类精确度：" + str(precision_score(y_test, test_label_pred_noise, average='weighted')))
+print("分类器在修复前的加噪测试集中的分类召回率：" + str(recall_score(y_test, test_label_pred_noise, average='weighted')))
+print("分类器在修复前的加噪测试集中的分类F1分数：" + str(f1_score(y_test, test_label_pred_noise, average='weighted')))
 
 # section 确定有影响力的特征
 # choice LIME(Local Interpretable Model-Agnostic Explanation)(效果好)
@@ -704,3 +727,20 @@ print("加噪标签修复后，完整数据集D中被decision tree模型错误�
 # # 整体数据集D中被decision tree模型错误分类的样本
 # print("加噪标签修复后，完整数据集D中被decision tree模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# section 修复后实验指标测定
+
+"""Accuracy指标"""
+print("*" * 100)
+print("分类器在修复后的加噪测试集中的分类准确度：" + str(accuracy_score(y_test, y_test_pred)))
+
+"""Precision/Recall/F1指标"""
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+
+print("分类器在修复后的加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("分类器在修复后的加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
