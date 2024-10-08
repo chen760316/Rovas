@@ -31,6 +31,8 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理
 
+# subsection 原始真实数据集（对应实验测试1.1）
+
 file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
@@ -39,6 +41,60 @@ file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/satellite.csv"
 # file_path = "../datasets/real_outlier/shuttle.csv"
 # file_path = "../datasets/real_outlier/yeast.csv"
+
+# subsection 含有不同异常比例的真实数据集（对应实验测试1.2）
+
+# choice Annthyroid数据集
+# file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_05_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_07.csv"
+
+# choice Cardiotocography数据集
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_05_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_10_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_20_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_22.csv"
+
+# choice PageBlocks数据集
+# file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_05_v01.csv"
+
+# choice Wilt数据集
+# file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_02_v01.csv"
+# file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_05.csv"
+
+# subsection 含有不同异常类型和异常比例的合成数据集（从真实数据中加入不同异常类型合成）（对应实验测试1.2）
+
+# choice Annthyroid数据集+cluster噪声+不同噪声比例(效果稳定)
+# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.3.csv"
+
+# choice Cardiotocography数据集+local噪声+不同噪声比例(好用)
+# file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.3.csv"
+
+# choice PageBlocks数据集+global噪声+不同噪声比例(效果稳定)
+# file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.3.csv"
+
+# choice satellite数据集+local噪声+不同噪声比例(好用)
+# file_path = "../datasets/synthetic_outlier/satellite_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/satellite_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/satellite_0.3.csv"
+
+# choice annthyroid数据集+local噪声+不同噪声比例(好用)
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
+
+# choice waveform数据集+dependency噪声+不同噪声比例
+# file_path = "../datasets/synthetic_outlier/waveform_dependency_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/waveform_dependency_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/waveform_dependency_0.3.csv"
 
 data = pd.read_csv(file_path)
 
