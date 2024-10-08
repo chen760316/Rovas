@@ -31,8 +31,8 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
 # choice drybean数据集(效果好)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+# file_path = "../datasets/multi_class/drybean.xlsx"
+# data = pd.read_excel(file_path)
 
 # choice obesity数据集(效果好)
 # file_path = "../datasets/multi_class/obesity.csv"
@@ -75,14 +75,14 @@ data = pd.read_excel(file_path)
 # data = pd.read_csv(file_path)
 
 # choice 真实异常检测数据集（效果好）
-# file_path = "../datasets/real_outlier/Cardiotocography.csv"
+file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
 # file_path = "../datasets/real_outlier/pendigits.csv"
 # file_path = "../datasets/real_outlier/satellite.csv"
 # file_path = "../datasets/real_outlier/shuttle.csv"
 # file_path = "../datasets/real_outlier/yeast.csv"
-# data = pd.read_csv(file_path)
+data = pd.read_csv(file_path)
 
 # choice Iris数据集(效果一般)
 # file_path = "../datasets/multi_class/Iris.csv"
