@@ -76,13 +76,13 @@ CD图(比较多算法模型性能)
 
 ### 2、Rovas与基准算法对比
 
-实验点1：对比Rovas和基准在传统异常检测领域（在正常值和异常值两种类型的分类数据中检测异常值的能力）的性能（如异常检测器的Accuracy）差异，关于检测的传统异常类型可以参照ADBench中划分的local/global/Dependency/Cluster。后期可以考虑添加基准算法对good/bad/ugly的检测性能（关于Rovas对这三类检测能力在后面单独讨论）
+实验点1：对比Rovas和基准在传统异常检测领域（在正常值和异常值两种类型的分类数据中检测异常值的能力）的性能（如异常检测器的Accuracy）差异，**关于检测的传统异常类型可以参照ADBench中划分的local/global/Dependency/Cluster。后期可以考虑添加基准算法对good/bad/ugly的检测性能**（关于Rovas对这三类检测能力在后面单独讨论）
 
 ...
 
 ### 3、Rovas对ugly outliers的检测能力（建议与1一起做）
 
-实验点1：首先是Rovas能发现多少比例的ugly outliers，其次是在不同异常类型（local/global/Dependency/Cluster）和异常比例（合成数据集/真实数据集的不同异常比例）下，Rovas能发现的ugly outliers比例如何变化。
+实验点1：首先是Rovas能发现多少比例的ugly outliers，**其次是在不同异常类型（local/global/Dependency/Cluster）和异常比例（合成数据集/真实数据集的不同异常比例）下，Rovas能发现的ugly outliers比例如何变化**。
 
 
 

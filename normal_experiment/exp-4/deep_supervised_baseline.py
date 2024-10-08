@@ -34,10 +34,12 @@ np.set_printoptions(threshold=np.inf)
 
 # choice drybean数据集
 
-# file_path = "../datasets/multi_class_to_outlier/drybean_outlier.csv"
-# data = pd.read_csv(file_path)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+# file_path = "../datasets/multi_class/drybean.xlsx"
+# data = pd.read_excel(file_path)
+
+# choice star数据集
+file_path = "../datasets/multi_class/star/star.csv"
+data = pd.read_csv(file_path)
 
 enc = LabelEncoder()
 label_name = data.columns[-1]
