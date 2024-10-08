@@ -31,8 +31,8 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
 # choice drybean数据集(效果好)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+# file_path = "../datasets/multi_class/drybean.xlsx"
+# data = pd.read_excel(file_path)
 
 # choice obesity数据集(效果好)
 # file_path = "../datasets/multi_class/obesity.csv"
@@ -86,8 +86,8 @@ data = pd.read_excel(file_path)
 # file_path = "../datasets/multi_class/wine.csv"
 # data = pd.read_csv(file_path, sep=';')
 
-# choice 真实异常检测数据集（本身不包含错误数据，不适合用于修读任务，且需要搭配非线性SVM）
-# file_path = "../datasets/real_outlier/Cardiotocography.csv"
+# choice 真实异常检测数据集（本身不包含错误数据，不适合用于修复任务，且需要搭配非线性SVM）
+file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
@@ -95,7 +95,7 @@ data = pd.read_excel(file_path)
 # file_path = "../datasets/real_outlier/satellite.csv"
 # file_path = "../datasets/real_outlier/shuttle.csv"
 # file_path = "../datasets/real_outlier/yeast.csv"
-# data = pd.read_csv(file_path)
+data = pd.read_csv(file_path)
 
 # 如果数据量超过20000行，就随机采样到20000行
 if len(data) > 20000:

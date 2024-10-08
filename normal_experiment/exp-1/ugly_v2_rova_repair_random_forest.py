@@ -24,16 +24,89 @@ np.set_printoptions(threshold=np.inf)
 
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
-# choice drybean数据集
-
-# file_path = "../datasets/multi_class_to_outlier/drybean_outlier.csv"
-# data = pd.read_csv(file_path)
+# choice drybean数据集(效果好)
 file_path = "../datasets/multi_class/drybean.xlsx"
 data = pd.read_excel(file_path)
+
+# choice obesity数据集(效果好)
+# file_path = "../datasets/multi_class/obesity.csv"
+# data = pd.read_csv(file_path)
+
+# choice balita数据集(SVM拟合效果差，但修复后效果提升显著)
+# file_path = "../datasets/multi_class/balita.csv"
+# data = pd.read_csv(file_path)
+
+# choice apple数据集(效果提升小)
+# file_path = "../datasets/multi_class/apple.csv"
+# data = pd.read_csv(file_path)
+
+# choice adult数据集(效果提升明显)
+# file_path = "../datasets/multi_class/adult.csv"
+# data = pd.read_csv(file_path)
+
+# choice body数据集(执行较慢，SVM拟合效果很差，但修复后效果有提升)
+# file_path = "../datasets/multi_class/body/body.csv"
+# data = pd.read_csv(file_path)
+
+# # choice covertype数据集(执行很慢，SVM拟合效果很差，但修复后效果提升显著)
+# file_path = "../datasets/multi_class/covtype/covtype_process.csv"
+# data = pd.read_csv(file_path)
+
+# choice financial(SVM拟合效果很差，但修复后效果提升显著)
+# file_path = "../datasets/multi_class/financial/financial.csv"
+# data = pd.read_csv(file_path)
+
+# choice online(SVM拟合效果相对较差，但修复后效果提升显著)
+# file_path = "../datasets/multi_class/online/online.csv"
+# data = pd.read_csv(file_path)
+
+# choice star(SVM拟合相对准确，修复后效果提升显著)
+# file_path = "../datasets/multi_class/star/star.csv"
+# data = pd.read_csv(file_path)
+
+# choice student(SVM拟合相对较差，修复后效果提升显著)
+# file_path = "../datasets/multi_class/student/Student.csv"
+# data = pd.read_csv(file_path)
+
+# choice Iris数据集(效果一般)
+# file_path = "../datasets/multi_class/Iris.csv"
+# data = pd.read_csv(file_path)
+
+# choice 真实异常检测数据集+local类型异常（需要搭配非线性SVM，线性SVM下无法很好划分）
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
+# data = pd.read_csv(file_path)
+
+# choice wine数据集(SVM拟合效果差，修复效果差)
+# file_path = "../datasets/multi_class/wine.csv"
+# data = pd.read_csv(file_path, sep=';')
+
+# choice 真实异常检测数据集（本身不包含错误数据，不适合用于修复任务，且需要搭配非线性SVM）
+# file_path = "../datasets/real_outlier/Cardiotocography.csv"
+# file_path = "../datasets/real_outlier/annthyroid.csv"
+# file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/PageBlocks.csv"
+# file_path = "../datasets/real_outlier/pendigits.csv"
+# file_path = "../datasets/real_outlier/satellite.csv"
+# file_path = "../datasets/real_outlier/shuttle.csv"
+# file_path = "../datasets/real_outlier/yeast.csv"
+# data = pd.read_csv(file_path)
+
 enc = LabelEncoder()
 label_name = data.columns[-1]
+
 # 原始数据集D对应的Dataframe
 data[label_name] = enc.fit_transform(data[label_name])
+
+# 检测非数值列
+non_numeric_columns = data.select_dtypes(exclude=[np.number]).columns
+
+# 为每个非数值列创建一个 LabelEncoder 实例
+encoders = {}
+for column in non_numeric_columns:
+    encoder = LabelEncoder()
+    data[column] = encoder.fit_transform(data[column])
+    encoders[column] = encoder  # 保存每个列的编码器，以便将来可能需要解码
+
 X = data.values[:, :-1]
 y = data.values[:, -1]
 
