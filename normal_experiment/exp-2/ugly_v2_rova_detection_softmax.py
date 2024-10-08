@@ -472,25 +472,25 @@ print("Rovas在加噪测试集中的分类精确度：" + str(precision_score(y_
 print("Rovas在加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
 print("Rovas在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
-# """ROC-AUC指标"""
-# print("*" * 100)
-# roc_auc_test = roc_auc_score(y_test, y_test_pred, multi_class='ovr')  # 一对多方式
-# print("Rovas在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+"""ROC-AUC指标"""
+print("*" * 100)
+roc_auc_test = roc_auc_score(y_test, y_test_pred, multi_class='ovr')  # 一对多方式
+print("Rovas在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
-# """PR AUC指标"""
-# print("*" * 100)
-# # 计算预测概率
-# y_scores = 1 / (1 + np.exp(-test_scores))
-# # 计算 Precision 和 Recall
-# precision, recall, _ = precision_recall_curve(y_test, y_scores)
-# # 计算 PR AUC
-# pr_auc = auc(recall, precision)
-# print("半监督异常检测器在原始测试集中的PR AUC 分数:", pr_auc)
-#
-# """AP指标"""
-# print("*" * 100)
-# # 计算预测概率
-# y_scores = 1 / (1 + np.exp(-test_scores))
-# # 计算 Average Precision
-# ap_score = average_precision_score(y_test, y_scores)
-# print("无监督异常检测器在原始测试集中的AP分数:", ap_score)
+"""PR AUC指标"""
+print("*" * 100)
+# 计算预测概率
+y_scores = 1 / (1 + np.exp(-test_scores))
+# 计算 Precision 和 Recall
+precision, recall, _ = precision_recall_curve(y_test, y_scores)
+# 计算 PR AUC
+pr_auc = auc(recall, precision)
+print("半监督异常检测器在原始测试集中的PR AUC 分数:", pr_auc)
+
+"""AP指标"""
+print("*" * 100)
+# 计算预测概率
+y_scores = 1 / (1 + np.exp(-test_scores))
+# 计算 Average Precision
+ap_score = average_precision_score(y_test, y_scores)
+print("无监督异常检测器在原始测试集中的AP分数:", ap_score)

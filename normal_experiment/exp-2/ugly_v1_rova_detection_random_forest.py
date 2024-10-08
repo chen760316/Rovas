@@ -270,10 +270,10 @@ print("Rovas在加噪测试集中的分类精确度：" + str(precision_score(y_
 print("Rovas在加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
 print("Rovas在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 
-# """ROC-AUC指标"""
-# print("*" * 100)
-# roc_auc_test = roc_auc_score(y_test, y_test_pred, multi_class='ovr')  # 一对多方式
-# print("Rovas在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+"""ROC-AUC指标"""
+print("*" * 100)
+roc_auc_test = roc_auc_score(y_test, y_test_pred, multi_class='ovr')  # 一对多方式
+print("Rovas在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 # """PR AUC指标"""
 # print("*" * 100)
