@@ -68,6 +68,7 @@ def memory_timer():
     print(f"Peak Memory Usage: {peak / 10**6:.2f} MiB")
 
 with memory_timer():
+    t0 = time.time()  # 开始时间
     epochs = 1
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     n_trans = 64
@@ -77,56 +78,36 @@ with memory_timer():
 
     start_time = time.time()  # 开始时间
 
-    # subsection 含有不同异常比例的真实数据集
-
-    # choice Annthyroid数据集(效果稳定)
-    # file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_02_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_05_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_07.csv"
-
-    # choice Cardiotocography数据集(效果稳定)
-    # file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_02_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_05_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_10_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_20_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_22.csv"
-
-    # choice PageBlocks数据集(效果稳定)
-    # file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_02_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_05_v01.csv"
-
-    # choice Wilt数据集(效果稳定)
-    # file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_02_v01.csv"
-    # file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_05.csv"
-
-    # subsection 含有不同异常类型和异常比例的合成数据集（从真实数据中加入噪声合成）
-
-    # choice Annthyroid数据集+cluster噪声+不同噪声比例(效果稳定)
-    # file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv"
-    # file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.2.csv"
-    # file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.3.csv"
-
-    # choice Cardiotocography数据集+local噪声+不同噪声比例(好用)
-    # file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.1.csv"
-    # file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.2.csv"
-    # file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.3.csv"
-
-    # choice PageBlocks数据集+global噪声+不同噪声比例(效果稳定)
-    # file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.1.csv"
-    # file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.2.csv"
-    # file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.3.csv"
-
-    # choice satellite数据集+local噪声+不同噪声比例(好用)
-    # file_path = "../datasets/synthetic_outlier/satellite_0.1.csv"
-    # file_path = "../datasets/synthetic_outlier/satellite_0.2.csv"
-    # file_path = "../datasets/synthetic_outlier/satellite_0.3.csv"
-
-    # choice annthyroid数据集+local噪声+不同噪声比例(好用)
-    # file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
-    # file_path = "../datasets/synthetic_outlier/annthyroid_0.2.csv"
-    file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
-
+    # choice drybean数据集(效果好)
+    file_path = "../datasets/multi_class_to_outlier/drybean_outlier.csv"
     data = pd.read_csv(file_path)
+
+    # choice obesity数据集(效果好)
+    # file_path = "../datasets/multi_class_to_outlier/obesity_outlier.csv"
+    # data = pd.read_csv(file_path)
+
+    # choice balita数据集(SVM拟合效果差，但修复后效果提升显著)
+    # file_path = "../datasets/multi_class_to_outlier/balita_outlier.csv"
+    # data = pd.read_csv(file_path)
+
+    # choice apple数据集(效果提升小)
+    # file_path = "../datasets/multi_class_to_outlier/apple_outlier.csv"
+    # data = pd.read_csv(file_path)
+
+    # choice adult数据集(效果提升明显)
+    # file_path = "../datasets/multi_class_to_outlier/adult_outlier.csv"
+    # data = pd.read_csv(file_path)
+
+    # choice 真实异常检测数据集（本身不包含错误数据，不适合用于修复任务，且需要搭配非线性SVM）
+    # file_path = "../datasets/real_outlier/Cardiotocography.csv"
+    # file_path = "../datasets/real_outlier/annthyroid.csv"
+    # file_path = "../datasets/real_outlier/optdigits.csv"
+    # file_path = "../datasets/real_outlier/PageBlocks.csv"
+    # file_path = "../datasets/real_outlier/pendigits.csv"
+    # file_path = "../datasets/real_outlier/satellite.csv"
+    # file_path = "../datasets/real_outlier/shuttle.csv"
+    # file_path = "../datasets/real_outlier/yeast.csv"
+    # data = pd.read_csv(file_path)
 
     # subsection 进行行采样和列采样
     print("原始数据集行数：", data.shape[0])
@@ -928,3 +909,5 @@ with memory_timer():
     # print("去除判定为异常的样本后的训练集softmax分类准确度：" + str(accuracy_score(y_train_o, softmax_model_o.predict(X_train_o))))
     # print("去除判定为异常的样本后的测试集softmax分类准确度：" + str(accuracy_score(y_test, softmax_model_o.predict(X_test))))
     # print("*" * 100)
+    t1 = time.time()  # 开始时间
+    print("规则执行总耗时：", t1-t0)
