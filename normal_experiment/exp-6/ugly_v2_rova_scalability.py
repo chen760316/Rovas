@@ -98,9 +98,34 @@ with memory_timer():
     file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
 
     data = pd.read_csv(file_path)
-    # 如果数据量超过20000行，就随机采样到20000行
-    if len(data) > 20000:
-        data = data.sample(n=20000, random_state=42)
+
+    # subsection 进行行采样和列采样
+    print("原始数据集行数：", data.shape[0])
+    print("原始数据集列数：", data.shape[1])
+    # 随机采样固定比例的行
+    sample_size = 0.2  # 行采样比例
+    data = data.sample(frac=sample_size, random_state=1)
+
+    # 随机采样固定比例的列
+    sample_ratio = 0.2  # 列采样比例
+
+    # 计算采样的列数（不包括标签列）
+    num_features = data.shape[1] - 1  # 不包括标签列
+    num_sampled_features = int(num_features * sample_ratio)
+
+    # 随机选择特征列
+    sampled_columns = data.columns[:-1].to_series().sample(n=num_sampled_features, random_state=42)
+
+    # 提取采样的特征列和标签列
+    label_name = data.columns[-1]
+    data = data[sampled_columns.tolist() + [label_name]]
+
+    print("采样后的数据集行数：", data.shape[0])
+    print("采样后的数据集列数：", data.shape[1])
+
+    # # 如果数据量超过20000行，就随机采样到20000行
+    # if len(data) > 20000:
+    #     data = data.sample(n=20000, random_state=42)
 
     enc = LabelEncoder()
     label_name = data.columns[-1]
@@ -505,8 +530,7 @@ with memory_timer():
 
     # 初始化MinMaxScaler
     scaler = MinMaxScaler()
-    data_minmax = pd.read_csv(file_path)
-    data_minmax[data.columns] = scaler.fit_transform(data[data.columns])
+    data[data.columns] = scaler.fit_transform(data[data.columns])
     # 设置分组的间隔
     interval = 0.01
     # 对每列数据进行分组
@@ -515,8 +539,8 @@ with memory_timer():
     columns_bins_count = []
     small_domain_features = []
 
-    for column in data_minmax.columns:
-        digitized = np.digitize(data_minmax[column], bins)
+    for column in data.columns:
+        digitized = np.digitize(data[column], bins)
         unique_bins, counts = np.unique(digitized, return_counts=True)
         columns_bins[column] = len(unique_bins)
         columns_bins_count.append(len(unique_bins))
@@ -535,14 +559,13 @@ with memory_timer():
 
     # 初始化MinMaxScaler
     scaler_new = MinMaxScaler()
-    data_imbalance = pd.read_csv(file_path)
-    data_imbalance[data.columns] = scaler_new.fit_transform(data[data.columns])
+    data[data.columns] = scaler_new.fit_transform(data[data.columns])
 
     for feature in filtered_important_feature_indices:
         select_feature = feature_names[feature]
         # 对每列数据进行分组
         bins = np.arange(0, 1.01, interval)  # 生成0-1之间100个间隔的数组
-        digitized = np.digitize(data_imbalance[select_feature], bins)
+        digitized = np.digitize(data[select_feature], bins)
         # 统计每个区间的计数
         unique_bins, counts = np.unique(digitized, return_counts=True)
         # 设置最小支持数差值
@@ -550,7 +573,7 @@ with memory_timer():
 
         for t in X_copy_repair_indices:
             train_row_number = X_train.shape[0]
-            ta = data_imbalance.iloc[t, feature]
+            ta = data.iloc[t, feature]
             # 找到 ta 所在的间隔
             ta_bin = np.digitize([ta], bins)[0]
             # 找到 ta 所在间隔的计数

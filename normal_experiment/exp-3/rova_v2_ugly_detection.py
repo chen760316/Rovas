@@ -32,7 +32,7 @@ np.set_printoptions(threshold=np.inf)
 
 # subsection 原始真实数据集（对应实验测试1.1）
 
-file_path = "../datasets/real_outlier/Cardiotocography.csv"
+# file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
@@ -61,7 +61,7 @@ file_path = "../datasets/real_outlier/Cardiotocography.csv"
 
 # choice Wilt数据集
 # file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_02_v01.csv"
-# file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_05.csv"
+file_path = "../datasets/real_outlier_varying_ratios/Wilt/Wilt_05.csv"
 
 # subsection 含有不同异常类型和异常比例的合成数据集（从真实数据中加入不同异常类型合成）（对应实验测试1.2）
 

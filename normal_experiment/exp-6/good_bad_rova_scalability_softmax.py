@@ -127,9 +127,34 @@ with memory_timer():
     file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
 
     data = pd.read_csv(file_path)
-    # 如果数据量超过20000行，就随机采样到20000行
-    if len(data) > 20000:
-        data = data.sample(n=20000, random_state=42)
+
+    # subsection 进行行采样和列采样
+    print("原始数据集行数：", data.shape[0])
+    print("原始数据集列数：", data.shape[1])
+    # 随机采样固定比例的行
+    sample_size = 0.2  # 行采样比例
+    data = data.sample(frac=sample_size, random_state=1)
+
+    # 随机采样固定比例的列
+    sample_ratio = 0.2  # 列采样比例
+
+    # 计算采样的列数（不包括标签列）
+    num_features = data.shape[1] - 1  # 不包括标签列
+    num_sampled_features = int(num_features * sample_ratio)
+
+    # 随机选择特征列
+    sampled_columns = data.columns[:-1].to_series().sample(n=num_sampled_features, random_state=42)
+
+    # 提取采样的特征列和标签列
+    label_name = data.columns[-1]
+    data = data[sampled_columns.tolist() + [label_name]]
+
+    print("采样后的数据集行数：", data.shape[0])
+    print("采样后的数据集列数：", data.shape[1])
+
+    # # 如果数据量超过20000行，就随机采样到20000行
+    # if len(data) > 20000:
+    #     data = data.sample(n=20000, random_state=42)
 
     enc = LabelEncoder()
     label_name = data.columns[-1]
@@ -710,13 +735,13 @@ with memory_timer():
     col_indices = 1
     row_indices = 100
     select_feature = feature_names[col_indices]
-    data_minmax = pd.read_csv(file_path)
-    data_minmax[data.columns] = scaler.fit_transform(data[data.columns])
+    data = pd.read_csv(file_path)
+    data[data.columns] = scaler.fit_transform(data[data.columns])
     # 在所有数据D下的元组下标
-    ta = data_minmax.iloc[row_indices, col_indices]
+    ta = data.iloc[row_indices, col_indices]
     # 对每列数据进行分组
     bins = np.arange(0, 1.01, interval)  # 生成0-1之间100个间隔的数组
-    digitized = np.digitize(data_minmax[select_feature], bins)
+    digitized = np.digitize(data[select_feature], bins)
     # 统计每个区间的计数
     unique_bins, counts = np.unique(digitized, return_counts=True)
     # 找到 ta 所在的间隔
