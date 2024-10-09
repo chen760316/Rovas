@@ -210,6 +210,10 @@ print("测试集中的异常值比例：", len(test_outliers_index)/len(X_test))
 print("*" * 100)
 print("半监督异常检测器在原始测试集中的分类准确度：" + str(accuracy_score(y_test, test_pred_labels)))
 
+# # 测试样本中被SVM模型错误分类的样本
+# wrong_classified_test_indices = np.where(y_test != test_pred_labels)[0]
+# print("半监督异常检测器在原始测试集中的分类准确度v2：", 1-len(wrong_classified_test_indices)/len(y_test))
+
 """Precision/Recall/F1指标"""
 print("*" * 100)
 

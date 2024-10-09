@@ -33,7 +33,7 @@ np.set_printoptions(threshold=np.inf)
 # subsection 含有不同异常比例的真实数据集
 
 # choice Annthyroid数据集(效果稳定)
-# file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_02_v01.csv"
+file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_02_v01.csv"
 # file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_05_v01.csv"
 # file_path = "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_07.csv"
 
@@ -77,7 +77,7 @@ np.set_printoptions(threshold=np.inf)
 # choice annthyroid数据集+local噪声+不同噪声比例(好用)
 # file_path = "../datasets/synthetic_outlier/annthyroid_0.1.csv"
 # file_path = "../datasets/synthetic_outlier/annthyroid_0.2.csv"
-file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_0.3.csv"
 
 # choice waveform数据集+dependency噪声+不同噪声比例
 # file_path = "../datasets/synthetic_outlier/waveform_dependency_0.1.csv"
@@ -754,3 +754,45 @@ print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样
 # # 整体数据集D中被SVM模型错误分类的样本
 # print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+
+# subsection 用多种指标评价SVM在修复后的数据上的预测效果
+
+"""Precision/Recall/F1指标"""
+print("*" * 100)
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+
+print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+
+"""ROC-AUC指标"""
+y_test_prob = svm_repair.predict_proba(X_test_copy)
+# 对于二分类任务
+roc_auc_test = roc_auc_score(y_test, y_test_prob[:, 1])  # 使用第二类的概率
+print("SVM模型在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
+
+"""PR AUC指标(不支持多分类)"""
+# # 计算预测概率
+# y_scores = svm_repair.predict_proba(X_test)
+# # 计算 Precision 和 Recall
+# precision, recall, _ = precision_recall_curve(y_test, y_scores)
+# # 计算 PR AUC
+# pr_auc = auc(recall, precision)
+# print("SVM模型在修复测试集中的PR AUC 分数:", pr_auc)
+#
+
+"""Accuracy指标"""
+print("*" * 100)
+print("半监督异常检测器在修复测试集中的分类准确度：" + str(accuracy_score(y_test, y_test_pred)))
+
+"""AP指标(不支持多分类)"""
+# 计算预测概率
+y_scores = svm_repair.predict_proba(X_test_copy)
+# 计算 Average Precision
+ap_score = average_precision_score(y_test, y_scores[:, 1])
+print("SVM模型在修复测试集中的AP分数:", ap_score)
