@@ -79,17 +79,19 @@ with memory_timer():
     # file_path = "../datasets/real_outlier/satellite.csv"
     # file_path = "../datasets/real_outlier/shuttle.csv"
     # file_path = "../datasets/real_outlier/yeast.csv"
+    # file_path = "../datasets/real_outlier/credit_card_fraud.csv"
+
     # data = pd.read_csv(file_path)
 
     # subsection 进行行采样和列采样
     print("原始数据集行数：", data.shape[0])
     print("原始数据集列数：", data.shape[1])
     # 随机采样固定比例的行
-    sample_size = 0.2  # 行采样比例
+    sample_size = 1  # 行采样比例
     data = data.sample(frac=sample_size, random_state=1)
 
     # 随机采样固定比例的列
-    sample_ratio = 0.2  # 列采样比例
+    sample_ratio = 1  # 列采样比例
 
     # 计算采样的列数（不包括标签列）
     num_features = data.shape[1] - 1  # 不包括标签列

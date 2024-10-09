@@ -80,8 +80,8 @@ with memory_timer():
     start_time = time.time()  # 开始时间
 
     # choice drybean数据集(效果好)
-    file_path = "../datasets/multi_class_to_outlier/drybean_outlier.csv"
-    data = pd.read_csv(file_path)
+    # file_path = "../datasets/multi_class_to_outlier/drybean_outlier.csv"
+    # data = pd.read_csv(file_path)
 
     # choice obesity数据集(效果好)
     # file_path = "../datasets/multi_class_to_outlier/obesity_outlier.csv"
@@ -102,23 +102,23 @@ with memory_timer():
     # choice 真实异常检测数据集（本身不包含错误数据，不适合用于修复任务，且需要搭配非线性SVM）
     # file_path = "../datasets/real_outlier/Cardiotocography.csv"
     # file_path = "../datasets/real_outlier/annthyroid.csv"
-    # file_path = "../datasets/real_outlier/optdigits.csv"
+    file_path = "../datasets/real_outlier/optdigits.csv"
     # file_path = "../datasets/real_outlier/PageBlocks.csv"
     # file_path = "../datasets/real_outlier/pendigits.csv"
     # file_path = "../datasets/real_outlier/satellite.csv"
     # file_path = "../datasets/real_outlier/shuttle.csv"
     # file_path = "../datasets/real_outlier/yeast.csv"
-    # data = pd.read_csv(file_path)
+    data = pd.read_csv(file_path)
 
     # subsection 进行行采样和列采样
     print("原始数据集行数：", data.shape[0])
     print("原始数据集列数：", data.shape[1])
     # 随机采样固定比例的行
-    sample_size = 0.2  # 行采样比例
+    sample_size = 0.5  # 行采样比例
     data = data.sample(frac=sample_size, random_state=1)
 
     # 随机采样固定比例的列
-    sample_ratio = 0.2  # 列采样比例
+    sample_ratio = 0.5  # 列采样比例
 
     # 计算采样的列数（不包括标签列）
     num_features = data.shape[1] - 1  # 不包括标签列
