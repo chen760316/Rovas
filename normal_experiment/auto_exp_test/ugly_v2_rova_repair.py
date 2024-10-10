@@ -668,33 +668,9 @@ def run(file_path):
     # print("SVM模型在修复测试集中的AP分数:", ap_score)
     return acc, ap
 
-li = ["../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_02_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_05_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Annthyroid/Annthyroid_07.csv",
-      "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_02_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_05_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_10_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_20_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Cardiotocography/Cardiotocography_22.csv",
-      "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_02_v01.csv",
-      "../datasets/real_outlier_varying_ratios/PageBlocks/PageBlocks_05_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Wilt/Wilt_02_v01.csv",
-      "../datasets/real_outlier_varying_ratios/Wilt/Wilt_05.csv",
-      "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv",
-      "../datasets/synthetic_outlier/annthyroid_cluster_0.2.csv",
-      "../datasets/synthetic_outlier/annthyroid_cluster_0.3.csv",
-      "../datasets/synthetic_outlier/Cardiotocography_local_0.1.csv",
-      "../datasets/synthetic_outlier/Cardiotocography_local_0.2.csv",
-      "../datasets/synthetic_outlier/Cardiotocography_local_0.3.csv",
-      "../datasets/synthetic_outlier/PageBlocks_global_0.1.csv",
-      "../datasets/synthetic_outlier/PageBlocks_global_0.2.csv",
-      "../datasets/synthetic_outlier/PageBlocks_global_0.3.csv",
-      "../datasets/synthetic_outlier/satellite_0.1.csv",
-      "../datasets/synthetic_outlier/satellite_0.2.csv",
-      "../datasets/synthetic_outlier/satellite_0.3.csv",
-      "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv",
-      "../datasets/synthetic_outlier/annthyroid_cluster_0.2.csv",
-      "../datasets/synthetic_outlier/annthyroid_cluster_0.3.csv"
+li = ["../datasets/synthetic_outlier/waveform_dependency_0.1.csv",
+      "../datasets/synthetic_outlier/waveform_dependency_0.2.csv",
+      "../datasets/synthetic_outlier/waveform_dependency_0.3.csv"
 ]
 
 if __name__ == '__main__':
