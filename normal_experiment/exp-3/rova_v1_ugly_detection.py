@@ -62,18 +62,24 @@ np.set_printoptions(threshold=np.inf)
 # subsection 含有不同异常类型和异常比例的合成数据集（从真实数据中加入不同异常类型合成）（对应实验测试1.2）
 
 # choice Annthyroid数据集+cluster噪声+不同噪声比例(效果稳定)
-file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.15.csv"
 # file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.2.csv"
-# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.3.csv"
+# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.25.csv"
+file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.3.csv"
 
 # choice Cardiotocography数据集+local噪声+不同噪声比例(好用)
 # file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.15.csv"
 # file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.25.csv"
 # file_path = "../datasets/synthetic_outlier/Cardiotocography_local_0.3.csv"
 
 # choice PageBlocks数据集+global噪声+不同噪声比例(效果稳定)
 # file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.1.csv"
+# file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.15.csv"
 # file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.2.csv"
+# file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.25.csv"
 # file_path = "../datasets/synthetic_outlier/PageBlocks_global_0.3.csv"
 
 # choice satellite数据集+local噪声+不同噪声比例(好用)
