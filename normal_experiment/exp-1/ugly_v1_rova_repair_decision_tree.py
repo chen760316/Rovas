@@ -27,8 +27,8 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
 # choice drybean数据集(效果好)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+# file_path = "../datasets/multi_class/drybean.xlsx"
+# data = pd.read_excel(file_path)
 
 # choice obesity数据集(效果好)
 # file_path = "../datasets/multi_class/obesity.csv"
@@ -88,10 +88,10 @@ data = pd.read_excel(file_path)
 # file_path = "../datasets/real_outlier/optdigits.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
 # file_path = "../datasets/real_outlier/pendigits.csv"
-# file_path = "../datasets/real_outlier/satellite.csv"
+file_path = "../datasets/real_outlier/satellite.csv"
 # file_path = "../datasets/real_outlier/shuttle.csv"
 # file_path = "../datasets/real_outlier/yeast.csv"
-# data = pd.read_csv(file_path)
+data = pd.read_csv(file_path)
 
 enc = LabelEncoder()
 label_name = data.columns[-1]
@@ -609,6 +609,6 @@ print("分类器在修复后的加噪测试集中的分类准确度：" + str(ac
 # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 
+print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 print("分类器在修复后的加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
 print("分类器在修复后的加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))

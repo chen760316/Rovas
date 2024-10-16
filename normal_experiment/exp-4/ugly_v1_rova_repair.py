@@ -87,13 +87,13 @@ np.set_printoptions(threshold=np.inf)
 # data = pd.read_csv(file_path, sep=';')
 
 # choice 真实异常检测数据集（本身不包含错误数据，不适合用于修复任务，且需要搭配非线性SVM）
-file_path = "../datasets/real_outlier/Cardiotocography.csv"
+# file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
 # file_path = "../datasets/real_outlier/pendigits.csv"
 # file_path = "../datasets/real_outlier/satellite.csv"
-# file_path = "../datasets/real_outlier/shuttle.csv"
+file_path = "../datasets/real_outlier/shuttle.csv"
 # file_path = "../datasets/real_outlier/yeast.csv"
 data = pd.read_csv(file_path)
 
@@ -501,7 +501,7 @@ y_inners = y[rows_to_keep]
 # # 整体数据集D中被SVM模型错误分类的样本
 # print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
-#
+# #
 # # subsection 用多种指标评价SVM在修复后的数据上的预测效果
 #
 # """Precision/Recall/F1指标"""
@@ -712,41 +712,6 @@ print("加噪标签修复后，测试样本中被SVM模型错误分类的样本�
 print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
-# subsection 用多种指标评价SVM在修复后的数据上的预测效果
-
-"""Precision/Recall/F1指标"""
-print("*" * 100)
-
-# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
-# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
-# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
-# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
-
-print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
-print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
-
-"""ROC-AUC指标"""
-# y_test_prob = svm_repair.predict_proba(X_test)
-# roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
-# print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
-
-"""PR AUC指标(不支持多分类)"""
-# # 计算预测概率
-# y_scores = svm_repair.predict_proba(X_test)
-# # 计算 Precision 和 Recall
-# precision, recall, _ = precision_recall_curve(y_test, y_scores)
-# # 计算 PR AUC
-# pr_auc = auc(recall, precision)
-# print("SVM模型在修复测试集中的PR AUC 分数:", pr_auc)
-#
-"""AP指标(不支持多分类)"""
-# # 计算预测概率
-# y_scores = svm_repair.predict_proba(X_test)
-# # 计算 Average Precision
-# ap_score = average_precision_score(y_test, y_scores)
-# print("SVM模型在修复测试集中的AP分数:", ap_score)
-
 
 # # section 方案六：训练机器学习模型(随机森林模型)，修复特征值（修复时间很久，慎用）
 # #  依次将有影响力的特征作为要修复的标签（连续特征对应回归模型，分类特征对应分类模型），使用其他特征参与训练
@@ -796,3 +761,38 @@ print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test
 # # 整体数据集D中被SVM模型错误分类的样本
 # print("加噪标签修复后，完整数据集D中被SVM模型错误分类的样本占总完整数据的比例：",
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+
+# subsection 用多种指标评价SVM在修复后的数据上的预测效果
+
+"""Precision/Recall/F1指标"""
+print("*" * 100)
+
+# average='micro': 全局计算 F1 分数，适用于处理类别不平衡的情况。
+# average='macro': 类别 F1 分数的简单平均，适用于需要均衡考虑每个类别的情况。
+# average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
+# average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
+
+print("SVM模型在修复测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在修复测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
+print("SVM模型在修复测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
+
+"""ROC-AUC指标"""
+# y_test_prob = svm_repair.predict_proba(X_test)
+# roc_auc_test = roc_auc_score(y_test, y_test_prob, multi_class='ovr')  # 一对多方式
+# print("SVM模型在修复测试集中的ROC-AUC分数：" + str(roc_auc_test))
+
+"""PR AUC指标(不支持多分类)"""
+# # 计算预测概率
+# y_scores = svm_repair.predict_proba(X_test)
+# # 计算 Precision 和 Recall
+# precision, recall, _ = precision_recall_curve(y_test, y_scores)
+# # 计算 PR AUC
+# pr_auc = auc(recall, precision)
+# print("SVM模型在修复测试集中的PR AUC 分数:", pr_auc)
+#
+"""AP指标(不支持多分类)"""
+# # 计算预测概率
+# y_scores = svm_repair.predict_proba(X_test)
+# # 计算 Average Precision
+# ap_score = average_precision_score(y_test, y_scores)
+# print("SVM模型在修复测试集中的AP分数:", ap_score)

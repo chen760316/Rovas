@@ -27,8 +27,8 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
 # choice drybean数据集(效果好)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+# file_path = "../datasets/multi_class/drybean.xlsx"
+# data = pd.read_excel(file_path)
 
 # choice obesity数据集(效果好)
 # file_path = "../datasets/multi_class/obesity.csv"
@@ -87,11 +87,14 @@ data = pd.read_excel(file_path)
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
-# file_path = "../datasets/real_outlier/pendigits.csv"
+file_path = "../datasets/real_outlier/pendigits.csv"
 # file_path = "../datasets/real_outlier/satellite.csv"
 # file_path = "../datasets/real_outlier/shuttle.csv"
 # file_path = "../datasets/real_outlier/yeast.csv"
-# data = pd.read_csv(file_path)
+data = pd.read_csv(file_path)
+
+if len(data) > 20000:
+    data = data.sample(n=20000, random_state=42)
 
 enc = LabelEncoder()
 label_name = data.columns[-1]
@@ -174,7 +177,8 @@ import re
 i = len(feature_names)
 np.random.seed(1)
 categorical_names = {}
-softmax_model = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_model = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_model = LogisticRegression(class_weight='balanced')
 softmax_model.fit(X_train_copy, y_train)
 
 for feature in categorical_features:
@@ -210,25 +214,57 @@ print("LIME检验的最有影响力的属性的索引：{}".format(top_k_indices
 
 # section 找到loss(M, D, 𝑡) > 𝜆的元组
 
-# choice 使用sklearn库中的hinge损失函数
-decision_values = softmax_model.decision_function(X_copy)
-predicted_labels = np.argmax(decision_values, axis=1)
-# 计算每个样本的hinge损失
-num_samples = X_copy.shape[0]
-num_classes = softmax_model.classes_.shape[0]
-hinge_losses = np.zeros((num_samples, num_classes))
-hinge_loss = np.zeros(num_samples)
-for i in range(num_samples):
-    correct_class = int(y[i])
-    for j in range(num_classes):
-        if j != correct_class:
-            loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
-            hinge_losses[i, j] = loss_j
-    hinge_loss[i] = np.max(hinge_losses[i])
+# # choice 使用sklearn库中的hinge损失函数
+# decision_values = softmax_model.decision_function(X_copy)
+# predicted_labels = np.argmax(decision_values, axis=1)
+# # 计算每个样本的hinge损失
+# num_samples = X_copy.shape[0]
+# num_classes = softmax_model.classes_.shape[0]
+# hinge_losses = np.zeros((num_samples, num_classes))
+# hinge_loss = np.zeros(num_samples)
+# for i in range(num_samples):
+#     correct_class = int(y[i])
+#     for j in range(num_classes):
+#         if j != correct_class:
+#             loss_j = max(0, 1 - decision_values[i, correct_class] + decision_values[i, j])
+#             hinge_losses[i, j] = loss_j
+#     hinge_loss[i] = np.max(hinge_losses[i])
+#
+# # 在所有加噪数据D中损失函数高于阈值的样本索引
+# ugly_outlier_candidates = np.where(hinge_loss > 1)[0]
+# # print("D中损失函数高于损失阈值的样本索引为：", ugly_outlier_candidates)
 
-# 在所有加噪数据D中损失函数高于阈值的样本索引
-ugly_outlier_candidates = np.where(hinge_loss > 1)[0]
-# print("D中损失函数高于损失阈值的样本索引为：", ugly_outlier_candidates)
+# choice 使用交叉熵损失函数(适用于二分类数据集下的通用分类器，判定bad不够准确)
+# # 获取决策值
+# decision_values = svm_model.decision_function(X_copy)
+# # 将决策值转换为适用于 Softmax 的二维数组
+# decision_values_reshaped = decision_values.reshape(-1, 1)  # 变成 (n_samples, 1)
+# # 应用 Softmax 函数（可以手动实现或使用 scipy）
+# y_pred = softmax(np.hstack((decision_values_reshaped, -decision_values_reshaped)), axis=1)
+# # 创建 OneHotEncoder 实例
+# encoder = OneHotEncoder(sparse=False)
+# # 预测y_test的值，并与y_train组合成为y_ground
+# y_test_pred = svm_model.predict(X_test_copy)
+# y_ground = np.hstack((y_train, y_test_pred))
+# # 对y_ground进行独热编码
+# y_true = encoder.fit_transform(y_ground.reshape(-1, 1))
+# # 计算每个样本的损失
+# loss_per_sample = -np.sum(y_true * np.log(y_pred + 1e-12), axis=1)
+# # 计算测试集平均多分类交叉熵损失
+# average_loss = -np.mean(np.sum(y_true * np.log(y_pred + 1e-12), axis=1))
+# bad_samples = np.where(loss_per_sample > average_loss)[0]
+# good_samples = np.where(loss_per_sample <= average_loss)[0]
+# # 在所有加噪数据D中损失函数高于阈值的样本索引
+# # ugly_outlier_candidates = np.where(bad_samples > 1)[0]
+# ugly_outlier_candidates = bad_samples
+
+# choice 判定分类错误的样本（适用于二分类和多分类下的分类器）
+y_pred = softmax_model.predict(X_copy)
+ugly_outlier_candidates = np.where(y_pred != y)[0]
+# 提取对应索引的标签
+selected_labels = y[ugly_outlier_candidates]
+print("ugly_outlier_candidates的数量：", len(ugly_outlier_candidates))
+print("ugly_outlier_candidates中标签为1的样本数量：", np.sum(selected_labels == 1))
 
 # section 谓词outlier(𝐷, 𝑅, 𝑡 .𝐴, 𝜃 )的实现，找到所有有影响力的特征下的异常元组
 
@@ -271,7 +307,8 @@ for column_indice in top_k_indices:
 # subsection 原始数据集上训练的softmax模型在训练集和测试集中分错的样本比例
 
 print("*" * 100)
-softmax_clf = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_clf = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_clf = LogisticRegression(class_weight='balanced')
 softmax_clf.fit(X_train, y_train)
 train_label_pred = softmax_clf.predict(X_train)
 test_label_pred = softmax_clf.predict(X_test)
@@ -358,7 +395,8 @@ y_test = y[test_indices]
 
 # subsection 重新在修复后的数据上训练softmax模型
 
-softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+# softmax_repair = LogisticRegression(multi_class='ovr', solver='liblinear', random_state=42, class_weight='balanced')
+softmax_repair = LogisticRegression(class_weight='balanced')
 softmax_repair.fit(X_train_copy, y_train)
 y_train_pred = softmax_repair.predict(X_train_copy)
 y_test_pred = softmax_repair.predict(X_test_copy)
@@ -609,6 +647,6 @@ print("分类器在修复后的加噪测试集中的分类准确度：" + str(ac
 # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 
+print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 print("分类器在修复后的加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
 print("分类器在修复后的加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))

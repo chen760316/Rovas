@@ -33,12 +33,12 @@ np.set_printoptions(threshold=np.inf)
 # choice 选取数据集
 # file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
-file_path = "../datasets/real_outlier/optdigits.csv"
+# file_path = "../datasets/real_outlier/optdigits.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
 # file_path = "../datasets/real_outlier/pendigits.csv"
 # file_path = "../datasets/real_outlier/satellite.csv"
 # file_path = "../datasets/real_outlier/shuttle.csv"
-# file_path = "../datasets/real_outlier/yeast.csv"
+file_path = "../datasets/real_outlier/yeast.csv"
 
 data = pd.read_csv(file_path)
 
@@ -123,7 +123,7 @@ test_noise = np.intersect1d(test_indices, noise_indices)
 # subsection 设置训练和测试的弱监督样本
 # 设置弱监督训练样本
 # 找到所有标签为 1 的样本索引
-semi_label_ratio = 0.1  # 设置已知的异常标签比例
+semi_label_ratio = 1  # 设置已知的异常标签比例
 positive_indices = np.where(y_train == min_label)[0]
 # 随机选择 10% 的正样本
 n_positive_to_keep = int(len(positive_indices) * semi_label_ratio)
@@ -142,6 +142,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 n_trans = 64
 random_state = 42
 
+# choice PReNet异常检测器
 out_clf = PReNet(epochs=epochs, device=device, random_state=random_state)
 out_clf.fit(X_train, y=y_semi)
 
@@ -473,7 +474,8 @@ print("Rovas在加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_
 
 """ROC-AUC指标"""
 print("*" * 100)
-roc_auc_test = roc_auc_score(y_test, y_test_pred, multi_class='ovr')  # 一对多方式
+y_test_pred_pro = svm_model_noise.predict_proba(X_test_copy)[:, 1]
+roc_auc_test = roc_auc_score(y_test, y_test_pred_pro, multi_class='ovr')  # 一对多方式
 print("Rovas在加噪测试集中的ROC-AUC分数：" + str(roc_auc_test))
 
 """PR AUC指标"""
@@ -493,3 +495,9 @@ y_scores = 1 / (1 + np.exp(-test_scores))
 # 计算 Average Precision
 ap_score = average_precision_score(y_test, y_scores)
 print("无监督异常检测器在原始测试集中的AP分数:", ap_score)
+
+print("*"*100)
+print("Recall：", recall_score(y_test, y_test_pred, average='weighted'))
+print("Accuracy：", accuracy_score(y_test, y_test_pred))
+print("ROC-AUC：", roc_auc_test)
+print("*"*100)

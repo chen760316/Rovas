@@ -2,9 +2,9 @@ from data_generator import DataGenerator
 import numpy as np
 import pandas as pd
 
-file_path = "../real_outlier/annthyroid.csv"
+file_path = "../real_outlier/Waveform.csv"
 data = pd.read_csv(file_path)
-outlier_ratio = 0.3
+outlier_ratio = 0.25
 
 
 # data = pd.read_csv(file_path, sep=';')
@@ -53,7 +53,7 @@ combined_array = np.column_stack((X_synthetic, y_synthetic))
 df_combined = pd.DataFrame(combined_array, columns=column_names)
 
 # 保存 DataFrame 为 CSV 文件
-df_combined.to_csv("annthyroid_0.3.csv", index=False)
+df_combined.to_csv("satellite_local_0.25.csv", index=False)
 count_ones = np.sum(y_synthetic == 1)
 
 # 计算总元素的数量

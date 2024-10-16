@@ -29,8 +29,8 @@ np.set_printoptions(threshold=np.inf)
 # section 标准数据集处理，输入原始多分类数据集，在中间处理过程转化为异常检测数据集
 
 # choice drybean数据集(效果好)
-file_path = "../datasets/multi_class/drybean.xlsx"
-data = pd.read_excel(file_path)
+# file_path = "../datasets/multi_class/drybean.xlsx"
+# data = pd.read_excel(file_path)
 
 # choice obesity数据集(效果好)
 # file_path = "../datasets/multi_class/obesity.csv"
@@ -69,8 +69,8 @@ data = pd.read_excel(file_path)
 # data = pd.read_csv(file_path)
 
 # choice student(SVM拟合相对较差，修复后效果提升显著)
-# file_path = "../datasets/multi_class/student/Student.csv"
-# data = pd.read_csv(file_path)
+file_path = "../datasets/multi_class/student/Student.csv"
+data = pd.read_csv(file_path)
 
 # choice Iris数据集(效果一般)
 # file_path = "../datasets/multi_class/Iris.csv"
@@ -94,6 +94,9 @@ data = pd.read_excel(file_path)
 # file_path = "../datasets/real_outlier/shuttle.csv"
 # file_path = "../datasets/real_outlier/yeast.csv"
 # data = pd.read_csv(file_path)
+
+if len(data) > 20000:
+    data = data.sample(n=20000, random_state=42)
 
 enc = LabelEncoder()
 label_name = data.columns[-1]
@@ -410,7 +413,24 @@ def calculate_made(data):
 
 # 初始化MinMaxScaler
 scaler = MinMaxScaler()
-data_minmax = pd.read_excel(file_path)
+if file_path == "../datasets/multi_class/drybean.xlsx":
+    data_minmax = pd.read_excel(file_path)
+else:
+    data_minmax = pd.read_csv(file_path)
+
+if len(data_minmax) > 20000:
+    data_minmax = data_minmax.sample(n=20000, random_state=42)
+
+# 检测非数值列
+non_numeric_columns = data_minmax.select_dtypes(exclude=[np.number]).columns
+
+# 为每个非数值列创建一个 LabelEncoder 实例
+encoders = {}
+for column in non_numeric_columns:
+    encoder = LabelEncoder()
+    data_minmax[column] = encoder.fit_transform(data_minmax[column])
+    encoders[column] = encoder  # 保存每个列的编码器，以便将来可能需要解码
+
 data_minmax[data.columns] = scaler.fit_transform(data[data.columns])
 # 设置分组的间隔
 interval = 0.01
@@ -440,7 +460,24 @@ imbalanced_tuple_indices = set()
 
 # 初始化MinMaxScaler
 scaler_new = MinMaxScaler()
-data_imbalance = pd.read_excel(file_path)
+if file_path == "../datasets/multi_class/drybean.xlsx":
+    data_imbalance = pd.read_excel(file_path)
+else:
+    data_imbalance = pd.read_csv(file_path)
+
+if len(data_imbalance) > 20000:
+    data_imbalance = data_imbalance.sample(n=20000, random_state=42)
+
+# 检测非数值列
+non_numeric_columns = data_imbalance.select_dtypes(exclude=[np.number]).columns
+
+# 为每个非数值列创建一个 LabelEncoder 实例
+encoders = {}
+for column in non_numeric_columns:
+    encoder = LabelEncoder()
+    data_imbalance[column] = encoder.fit_transform(data_imbalance[column])
+    encoders[column] = encoder  # 保存每个列的编码器，以便将来可能需要解码
+
 data_imbalance[data.columns] = scaler_new.fit_transform(data[data.columns])
 
 for feature in filtered_important_feature_indices:
@@ -477,41 +514,41 @@ rows_to_keep = np.setdiff1d(np.arange(X_copy.shape[0]), X_copy_repair_indices)
 X_copy_inners = X_copy[rows_to_keep]
 y_inners = y[rows_to_keep]
 
-# section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
-#  需要修复的元组通过异常值检测器检测到的元组和naive bayes分类错误的元组共同确定（取并集）
-
-# subsection 尝试修复异常数据的标签
-
-knn = KNeighborsClassifier(n_neighbors=3)
-knn.fit(X_copy_inners, y_inners)
-
-# 预测异常值
-y_pred = knn.predict(X_copy_repair)
-
-# 替换异常值
-y[X_copy_repair_indices] = y_pred
-y_train = y[train_indices]
-y_test = y[test_indices]
-
-# subsection 重新在修复后的数据上训练naive bayes模型
-
-nb_repair = GaussianNB()
-nb_repair.fit(X_train_copy, y_train)
-y_train_pred = nb_repair.predict(X_train_copy)
-y_test_pred = nb_repair.predict(X_test_copy)
-
-print("*" * 100)
-# 训练样本中被naive bayes模型错误分类的样本
-wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-print("加噪标签修复后，训练样本中被naive bayes模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-
-# 测试样本中被naive bayes模型错误分类的样本
-wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-print("加噪标签修复后，测试样本中被naive bayes模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-
-# 整体数据集D中被naive bayes模型错误分类的样本
-print("加噪标签修复后，完整数据集D中被naive bayes模型错误分类的样本占总完整数据的比例：",
-      (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+# # section 方案一：对X_copy中需要修复的元组进行标签修复（knn方法）
+# #  需要修复的元组通过异常值检测器检测到的元组和naive bayes分类错误的元组共同确定（取并集）
+#
+# # subsection 尝试修复异常数据的标签
+#
+# knn = KNeighborsClassifier(n_neighbors=3)
+# knn.fit(X_copy_inners, y_inners)
+#
+# # 预测异常值
+# y_pred = knn.predict(X_copy_repair)
+#
+# # 替换异常值
+# y[X_copy_repair_indices] = y_pred
+# y_train = y[train_indices]
+# y_test = y[test_indices]
+#
+# # subsection 重新在修复后的数据上训练naive bayes模型
+#
+# nb_repair = GaussianNB()
+# nb_repair.fit(X_train_copy, y_train)
+# y_train_pred = nb_repair.predict(X_train_copy)
+# y_test_pred = nb_repair.predict(X_test_copy)
+#
+# print("*" * 100)
+# # 训练样本中被naive bayes模型错误分类的样本
+# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
+# print("加噪标签修复后，训练样本中被naive bayes模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
+#
+# # 测试样本中被naive bayes模型错误分类的样本
+# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
+# print("加噪标签修复后，测试样本中被naive bayes模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
+#
+# # 整体数据集D中被naive bayes模型错误分类的样本
+# print("加噪标签修复后，完整数据集D中被naive bayes模型错误分类的样本占总完整数据的比例：",
+#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
 
 # # section 方案二：对X_copy中需要修复的元组进行特征修复（统计方法修复）
 # #  需要修复的元组通过异常值检测器检测到的元组和naive bayes分类错误的元组共同确定（取并集）(修复效果由于监督/无监督基准)
@@ -632,53 +669,38 @@ print("加噪标签修复后，完整数据集D中被naive bayes模型错误分�
 #       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))
 #       /(len(y_train_copy_repair) + len(y_test_copy_repair)))
 
-# # section 方案五：训练机器学习模型（随机森林模型），修复标签值
-#
-# from sklearn.ensemble import RandomForestRegressor
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.metrics import mean_absolute_error
-#
-# # subsection 修复标签值
-# # 训练模型
-# model = RandomForestClassifier(n_estimators=100, random_state=42)
-# model.fit(X_copy_inners, y_inners)  # 使用正常样本训练模型
-#
-# # 预测离群样本的标签
-# y_repair_pred = model.predict(X_copy_repair)
-#
-# # 计算预测的准确性（可选）
-# mae = mean_absolute_error(y_repair, y_repair_pred)
-# print(f'Mean Absolute Error: {mae}')
-#
-# # subsection 修复特征值
-#
-#
-# X_copy[X_copy_repair_indices] = X_copy_repair
-# y[X_copy_repair_indices] = y_repair_pred
-# X_train_copy = X_copy[train_indices]
-# X_test_copy = X_copy[test_indices]
-# y_train = y[train_indices]
-# y_test = y[test_indices]
-#
-# # subsection 重新在修复后的数据上训练naive bayes模型
-#
-# nb_repair = GaussianNB()
-# nb_repair.fit(X_train_copy, y_train)
-# y_train_pred = nb_repair.predict(X_train_copy)
-# y_test_pred = nb_repair.predict(X_test_copy)
-#
-# print("*" * 100)
-# # 训练样本中被naive bayes模型错误分类的样本
-# wrong_classified_train_indices = np.where(y_train != y_train_pred)[0]
-# print("加噪标签修复后，训练样本中被naive bayes模型错误分类的样本占总训练样本的比例：", len(wrong_classified_train_indices)/len(y_train))
-#
-# # 测试样本中被naive bayes模型错误分类的样本
-# wrong_classified_test_indices = np.where(y_test != y_test_pred)[0]
-# print("加噪标签修复后，测试样本中被naive bayes模型错误分类的样本占总测试样本的比例：", len(wrong_classified_test_indices)/len(y_test))
-#
-# # 整体数据集D中被naive bayes模型错误分类的样本
-# print("加噪标签修复后，完整数据集D中被naive bayes模型错误分类的样本占总完整数据的比例：",
-#       (len(wrong_classified_train_indices) + len(wrong_classified_test_indices))/(len(y_train) + len(y_test)))
+# section 方案五：训练机器学习模型（随机森林模型），修复标签值
+
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import mean_absolute_error
+
+# subsection 修复标签值
+# 训练模型
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_copy_inners, y_inners)  # 使用正常样本训练模型
+
+# 预测离群样本的标签
+if len(X_copy_repair) > 0:
+    y_repair_pred = model.predict(X_copy_repair)
+else:
+    y_repair_pred = y_repair
+
+# subsection 修复特征值
+
+X_copy[X_copy_repair_indices] = X_copy_repair
+y[X_copy_repair_indices] = y_repair_pred
+X_train_copy = X_copy[train_indices]
+X_test_copy = X_copy[test_indices]
+y_train = y[train_indices]
+y_test = y[test_indices]
+
+# subsection 重新在修复后的数据上训练naive bayes模型
+
+nb_repair = GaussianNB()
+nb_repair.fit(X_train_copy, y_train)
+y_train_pred = nb_repair.predict(X_train_copy)
+y_test_pred = nb_repair.predict(X_test_copy)
 
 # # section 方案六：训练机器学习模型(随机森林模型)，修复特征值（修复时间很久，慎用）
 # #  依次将有影响力的特征作为要修复的标签（连续特征对应回归模型，分类特征对应分类模型），使用其他特征参与训练
@@ -741,6 +763,6 @@ print("分类器在修复后的加噪测试集中的分类准确度：" + str(ac
 # average='weighted': 加权 F1 分数，适用于类别不平衡的情况，考虑了每个类别的样本量。
 # average=None: 返回每个类别的 F1 分数，适用于详细分析每个类别的表现。
 
+print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))
 print("分类器在修复后的加噪测试集中的分类精确度：" + str(precision_score(y_test, y_test_pred, average='weighted')))
 print("分类器在修复后的加噪测试集中的分类召回率：" + str(recall_score(y_test, y_test_pred, average='weighted')))
-print("分类器在修复后的加噪测试集中的分类F1分数：" + str(f1_score(y_test, y_test_pred, average='weighted')))

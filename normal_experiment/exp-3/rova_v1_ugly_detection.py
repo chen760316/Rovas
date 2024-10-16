@@ -28,7 +28,7 @@ np.set_printoptions(threshold=np.inf)
 
 # subsection 原始真实数据集（对应实验测试1.1）
 
-file_path = "../datasets/real_outlier/Cardiotocography.csv"
+# file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # file_path = "../datasets/real_outlier/annthyroid.csv"
 # file_path = "../datasets/real_outlier/optdigits.csv"
 # file_path = "../datasets/real_outlier/PageBlocks.csv"
@@ -62,7 +62,7 @@ file_path = "../datasets/real_outlier/Cardiotocography.csv"
 # subsection 含有不同异常类型和异常比例的合成数据集（从真实数据中加入不同异常类型合成）（对应实验测试1.2）
 
 # choice Annthyroid数据集+cluster噪声+不同噪声比例(效果稳定)
-# file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv"
+file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.1.csv"
 # file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.2.csv"
 # file_path = "../datasets/synthetic_outlier/annthyroid_cluster_0.3.csv"
 
@@ -223,6 +223,21 @@ average_loss = -np.mean(np.sum(y_true * np.log(y_pred + 1e-12), axis=1))
 bad_samples = np.where(loss_per_sample < average_loss)[0]
 good_samples = np.where(loss_per_sample >= average_loss)[0]
 ugly_outlier_candidates = bad_samples
+
+# # choice 使用二元hinge损失函数
+# # 预测y_test的值，并与y_train组合成为y_ground
+# y_test_pred = svm_model.predict(X_test_copy)
+# y_true = np.hstack((y_train, y_test_pred))
+# # 获取决策函数输出
+# predictions = svm_model.decision_function(X_copy)
+# # 将真实标签从0/1转换为-1/1
+# y_true_transformed = np.where(y_true == 0, -1, 1)
+# # 计算hinge损失
+# hinge_losses = np.maximum(0, 1 - y_true_transformed * predictions)
+# # 找到导致分类错误的样本
+# # hinge损失大于0的样本即为分类错误的样本
+# bad_samples = np.where(hinge_losses > 0)[0]
+# ugly_outlier_candidates = bad_samples
 
 # section 谓词outlier(𝐷, 𝑅, 𝑡 .𝐴, 𝜃 )的实现，找到所有有影响力的特征下的异常元组
 
